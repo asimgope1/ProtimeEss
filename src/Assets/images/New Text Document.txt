@@ -1,0 +1,10 @@
+1.Leave Entry
+2.Leave Status
+3.Leave Balance
+4.Outdoor
+5.Manual Punch
+6.Client Visit
+7.Supervisor
+8.Expense Entry
+9.Odometer
+10.Payslip
