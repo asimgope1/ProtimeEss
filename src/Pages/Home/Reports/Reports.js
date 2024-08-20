@@ -149,37 +149,35 @@ const Reports = ({navigation}) => {
     },
     {
       Name: 'Holiday Register',
-      endpoint: 'api/AbsenteeRegister',
+      endpoint: 'api/holiday',
     },
     {
       Name: 'Multi Punch Register',
-      endpoint: 'api/AbsenteeRegister',
+      endpoint: 'api/monthlyattendance',
     },
     {
       Name: 'Late Commer Register',
-      endpoint: 'api/AbsenteeRegister',
+      endpoint: 'api/latecommerlist',
     },
     {
       Name: 'Outdoor Register',
-      endpoint: 'api/AbsenteeRegister',
+      endpoint: 'api/Outdoorlist',
     },
     {
-      Name: 'Manual Register',
-      endpoint: 'api/AbsenteeRegister',
+      Name: 'Mannual Register',
+      endpoint: 'api/manuallist',
     },
-    {
-      Name: 'Leave Register',
-      endpoint: 'api/AbsenteeRegister',
-    },
+
     {
       Name: 'Monthly Attendance Register',
-      endpoint: 'api/AbsenteeRegister',
+      endpoint: 'api/monthlyattendance',
     },
   ];
 
   const renderItem = ({item}) => {
     console.log('item', item);
     let color = '';
+    let flag = 1;
     if (item.Name === 'Daily Attendance Register') {
       color = 'green';
     } else if (item.Name === 'Presentee Register') {

@@ -10,6 +10,7 @@ import {
   ScrollView,
   FlatList,
   TouchableOpacity,
+  Button,
 } from 'react-native';
 import {getObjByKey} from '../../../utils/Storage';
 import SQLitePlugin from 'react-native-sqlite-2';
@@ -25,14 +26,14 @@ import {
 } from '../../../constants/color';
 import Header from '../../../components/Header';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import {Picker} from '@react-native-picker/picker';
-import moment from 'moment';
 import {Icon} from '@rneui/themed';
 import LinearGradient from 'react-native-linear-gradient';
 
 const Getreports = ({navigation, route}) => {
   const {item} = route.params;
   console.log('ite', item);
+  const [Route, SetRoute] = useState(item);
+  const [Monthdata, SetMonthdata] = useState([]);
   const [data, setData] = useState([]);
   const [fromDate, setFromDate] = useState(new Date());
   const [toDate, setToDate] = useState(new Date());
@@ -90,13 +91,180 @@ const Getreports = ({navigation, route}) => {
     } catch (error) {
       console.error('Initialization error:', error);
     } finally {
-      setLoading(false);
     }
   };
 
   useEffect(() => {
     initialize();
   }, []);
+
+  const getBorderColor = status => {
+    switch (status) {
+      case 'ABSENT':
+        return 'red'; // Color for absent
+      case 'PRESENT':
+        return 'green'; // Color for present
+      case 'LEAVE':
+        return 'blue'; // Color for leave
+      default:
+        return '#ccc'; // Default color
+    }
+  };
+  const Card = ({item}) => {
+    const borderColor =
+      item.Status === 'Approved' ? 'green' : getBorderColor(item.day_status);
+    const name = Route.Name;
+    console.log('Card', name);
+    if (name === 'Holiday Register') {
+      return (
+        <View
+          style={{
+            flex: 1,
+            width: WIDTH,
+          }}>
+          <View style={[styles.cardContainer, {borderLeftColor: borderColor}]}>
+            <Button title="Get List" />
+          </View>
+        </View>
+      );
+    } else if (name === 'Outdoor Register') {
+      return (
+        <View style={[styles.cardContainer, {borderLeftColor: borderColor}]}>
+          <Text style={styles.cardText1}>
+            Apply Date: <Text style={styles.cardText}>{item.ApplyDate}</Text>
+          </Text>
+          <Text style={styles.cardText1}>
+            Date: <Text style={styles.cardText}>{item.Date}</Text>
+          </Text>
+          <Text style={styles.cardText1}>
+            IN Time: <Text style={styles.cardText}>{item.IN}</Text>
+          </Text>
+          <Text style={styles.cardText1}>
+            OUT Time: <Text style={styles.cardText}>{item.OUT}</Text>
+          </Text>
+          <Text style={styles.cardText1}>
+            Reason: <Text style={styles.cardText}>{item.Reason || 'N/A'}</Text>
+          </Text>
+          <Text style={styles.cardText1}>
+            Status: <Text style={styles.cardText}>{item.Status}</Text>
+          </Text>
+        </View>
+      );
+    } else if (name === 'Late Commer Register') {
+      return (
+        <View style={[styles.cardContainer, {borderLeftColor: 'red'}]}>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              backgroundColor: 'white',
+            }}>
+            <Text style={styles.cardText1}>
+              Date: <Text style={styles.cardText}>{item.Date}</Text>
+            </Text>
+            <Text style={styles.cardText1}>
+              In: <Text style={styles.cardText}>{item.In}</Text>
+            </Text>
+            <Text style={styles.cardText1}>
+              Late By:{' '}
+              <Text style={styles.cardText}>{item.LateInMins} mins</Text>
+            </Text>
+          </View>
+        </View>
+      );
+    } else if (name === 'Mannual Register') {
+      return (
+        <View style={[styles.cardContainer, {borderLeftColor: 'green'}]}>
+          <Text style={styles.cardText1}>
+            Name <Text style={styles.cardText}>{item.EmployeeName}</Text>
+          </Text>
+          <Text style={styles.cardText1}>
+            Desgination <Text style={styles.cardText}>{item.Desgination}</Text>
+          </Text>
+          <Text style={styles.cardText1}>
+            Department <Text style={styles.cardText}>{item.Department}</Text>
+          </Text>
+          <Text style={styles.cardText1}>
+            Address <Text style={styles.cardText}>{item.Address}</Text>
+          </Text>
+        </View>
+      );
+    } else {
+      return (
+        <View style={[styles.cardContainer, {borderLeftColor: borderColor}]}>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              backgroundColor: 'white',
+            }}>
+            <Text style={styles.cardText1}>
+              Date: <Text style={styles.cardText}>{item.dt}</Text>
+            </Text>
+            <Text style={styles.cardText1}>
+              Day Status: <Text style={styles.cardText}>{item.day_status}</Text>
+            </Text>
+          </View>
+
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              backgroundColor: 'white',
+            }}>
+            <Text style={styles.cardText1}>
+              In: <Text style={styles.cardText}> {item.In}</Text>
+            </Text>
+            <Text style={styles.cardText1}>
+              Out: <Text style={styles.cardText}>{item.Out}</Text>
+            </Text>
+          </View>
+
+          {name !== 'Multi Punch Register' && (
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                backgroundColor: 'white',
+              }}>
+              <Text style={styles.cardText1}>
+                late In: <Text style={styles.cardText}>{item.late_in}</Text>
+              </Text>
+              <Text style={styles.cardText1}>
+                From: <Text style={styles.cardText}>{item.log_tp}</Text>
+              </Text>
+            </View>
+          )}
+
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              backgroundColor: 'white',
+            }}>
+            <Text style={styles.cardText1}>
+              Total Hours:{' '}
+              <Text style={styles.cardText}>{item.Total_Hour}</Text>
+            </Text>
+            {name !== 'Multi Punch Register' && (
+              <Text style={styles.cardText1}>
+                OT: <Text style={styles.cardText}>{item.tot_otmin}</Text>
+              </Text>
+            )}
+          </View>
+
+          {name !== 'Multi Punch Register' && (
+            <Text style={styles.cardText1}>
+              Shift Name: <Text style={styles.cardText}>{item.shift_nm}</Text>
+            </Text>
+          )}
+          <Text style={styles.cardText1}>
+            In-Out: <Text style={styles.cardText}>{item.in_out}</Text>
+          </Text>
+        </View>
+      );
+    }
+  };
 
   const handleApplyLeave = async () => {
     try {
@@ -122,16 +290,29 @@ const Getreports = ({navigation, route}) => {
         `${clientUrl}${item.endpoint}`,
         requestOptions,
       );
+      console.log('redty', response);
       const result = await response.json();
+
       if (result.Code === '200') {
-        setData(result.data_value);
-        SetCheck(false);
+        if (
+          result.msg === 'Daily Attendance Register' ||
+          result.msg === 'Absentee Register'
+        ) {
+          setData(result.data_value);
+          SetCheck(false);
+        } else if (
+          result.msg !== 'Daily Attendance Register' &&
+          result.msg !== 'Absentee Register'
+        ) {
+          SetMonthdata(result.data_value);
+          SetCheck(true);
+        }
       }
       console.log('balance', result);
     } catch (error) {
       console.error('Error fetching leave balance:', error);
     } finally {
-      setLoading(false);
+      // setLoading(false);
     }
   };
 
@@ -184,112 +365,121 @@ const Getreports = ({navigation, route}) => {
   };
 
   const ListView = ({item}) => {
-    console.log('item', item);
-    let color = '';
-    let char = '';
-    if (item.Status == 'ABSENT') {
-      color = RED;
-      char = 'Absent';
-    } else if (item.Status == 'PRESENT') {
-      color = GREEN;
-      char = 'Present';
-    } else if (item.Status == 'WEEKLYOFF') {
-      color = GRAY;
-      char = 'Weekoff';
-    } else if (item.Status == 'LEAVEDAY') {
-      color = ORANGE;
-      char = 'Leave';
-    } else if (item.Status == 'HALFDAY') {
-      color = BLUE;
-      char = 'Half Day';
-    } else if (
-      item.Status == 'HOLIDAY' ||
-      item.Status == 'SATURDAY' ||
-      item.Status == 'SUNDAY'
-    ) {
-      color = 'purple';
-      char = item.Status;
-    }
+    console.log('ListView item', item);
 
-    const [day, month, year] = item.Date.split('/');
-    const formattedDate = `${parseInt(day)} ${monthNames[parseInt(month) - 1]}`;
-    return (
-      <View
-        style={{
-          padding: 10,
-          marginVertical: 5,
-          backgroundColor: '#fff',
-          borderRadius: 10,
-          elevation: 3,
-          alignSelf: 'center',
-        }}>
+    {
+      let color = '';
+      let char = '';
+      if (item.Status || item.day_status == 'ABSENT') {
+        color = RED;
+        char = 'Absent';
+      } else if (item.Status || item.day_status == 'PRESENT') {
+        color = GREEN;
+        char = 'Present';
+      } else if (item.Status || item.day_status == 'WEEKLYOFF') {
+        color = GRAY;
+        char = 'Weekoff';
+      } else if (item.Status || item.day_status == 'LEAVEDAY') {
+        color = ORANGE;
+        char = 'Leave';
+      } else if (item.Status || item.day_status == 'HALFDAY') {
+        color = BLUE;
+        char = 'Half Day';
+      } else if (
+        item.Status == 'HOLIDAY' ||
+        item.Status == 'SATURDAY' ||
+        item.Status == 'SUNDAY'
+      ) {
+        color = 'purple';
+        char = item.Status;
+      }
+
+      const dateStr = item.dt || item.Date;
+
+      const [day, month, year] = dateStr ? dateStr.split('/') : ['', '', ''];
+
+      const formattedDate = dateStr
+        ? `${parseInt(day)} ${monthNames[parseInt(month) - 1]}`
+        : 'N/A';
+      return (
         <View
           style={{
-            flexDirection: 'row',
-            justifyContent: 'space-around',
+            padding: 10,
+            marginVertical: 5,
+            backgroundColor: '#fff',
+            borderRadius: 10,
+            elevation: 3,
+            alignSelf: 'center',
           }}>
           <View
             style={{
-              height: HEIGHT * 0.03,
-              // width: WIDTH * 0.05,
-              backgroundColor: color,
-              borderRadius: 2,
-              justifyContent: 'center',
-              alignItems: 'center',
-              elevation: 2,
-              marginLeft: 5,
+              flexDirection: 'row',
+              justifyContent: 'space-around',
             }}>
+            <View
+              style={{
+                height: HEIGHT * 0.03,
+                // width: WIDTH * 0.05,
+                backgroundColor: color,
+                borderRadius: 2,
+                justifyContent: 'center',
+                alignItems: 'center',
+                elevation: 2,
+                marginLeft: 5,
+              }}>
+              <Text
+                style={{
+                  fontSize: 10,
+                  fontWeight: 'bold',
+                  color: 'white',
+                  textAlign: 'center',
+                  padding: 5,
+                }}>
+                {char}
+              </Text>
+            </View>
             <Text
               style={{
-                fontSize: 10,
-                fontWeight: 'bold',
-                color: 'white',
+                width: WIDTH / 4,
+                fontSize: 14,
                 textAlign: 'center',
-                padding: 5,
+                color: 'black',
               }}>
-              {char}
+              {formattedDate}
+            </Text>
+            <Text
+              style={{
+                width: WIDTH / 4,
+                fontSize: 14,
+                textAlign: 'center',
+                color: 'black',
+              }}>
+              {item.In}
+            </Text>
+            <Text
+              style={{
+                width: WIDTH / 4,
+                fontSize: 14,
+                textAlign: 'center',
+                color: 'black',
+              }}>
+              {item.Out}
+            </Text>
+            <Text
+              style={{
+                width: WIDTH / 4,
+                fontSize: 14,
+                textAlign: 'center',
+                color: 'black',
+              }}>
+              {item.Total}
             </Text>
           </View>
-          <Text
-            style={{
-              width: WIDTH / 4,
-              fontSize: 14,
-              textAlign: 'center',
-              color: 'black',
-            }}>
-            {formattedDate}
-          </Text>
-          <Text
-            style={{
-              width: WIDTH / 4,
-              fontSize: 14,
-              textAlign: 'center',
-              color: 'black',
-            }}>
-            {item.In}
-          </Text>
-          <Text
-            style={{
-              width: WIDTH / 4,
-              fontSize: 14,
-              textAlign: 'center',
-              color: 'black',
-            }}>
-            {item.Out}
-          </Text>
-          <Text
-            style={{
-              width: WIDTH / 4,
-              fontSize: 14,
-              textAlign: 'center',
-              color: 'black',
-            }}>
-            {item.Total}
-          </Text>
         </View>
-      </View>
-    );
+      );
+    }
   };
+  console.log('data', data);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -303,125 +493,126 @@ const Getreports = ({navigation, route}) => {
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <Header title={item.Name} onBackPress={() => navigation.goBack()} />
-        <ScrollView
-          contentContainerStyle={styles.scrollViewContent}
-          scrollEnabled={false}>
-          <View
-            style={{
-              width: WIDTH * 0.95,
-              height: HEIGHT * 0.038,
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              marginTop: 5,
-              paddingLeft: 10,
-            }}>
-            <Text
+        {Route.Name !== 'Holiday Register' && (
+          <>
+            <View
               style={{
-                color: BLACK,
-                fontSize: 14,
+                width: WIDTH * 0.95,
+                height: HEIGHT * 0.038,
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                marginTop: 5,
+                paddingLeft: 10,
+              }}>
+              <Text
+                style={{
+                  color: BLACK,
+                  fontSize: 14,
+                  marginBottom: 10,
+                  fontFamily: 'Poppins-Bold',
+                }}>
+                Select Date
+              </Text>
+            </View>
+
+            <View
+              style={{
+                width: WIDTH * 0.95,
+                height: HEIGHT * 0.1,
+                borderColor: '#ccc',
+                borderWidth: 1,
                 marginBottom: 10,
-                fontFamily: 'Poppins-Bold',
+                alignSelf: 'center',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                flexDirection: 'row',
+                padding: 10,
+                paddingTop: 25,
               }}>
-              Select Date
-            </Text>
-          </View>
-
-          <View
-            style={{
-              width: WIDTH * 0.95,
-              height: HEIGHT * 0.1,
-              borderColor: '#ccc',
-              borderWidth: 1,
-              marginBottom: 10,
-              alignSelf: 'center',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              flexDirection: 'row',
-              padding: 10,
-              paddingTop: 25,
-            }}>
-            <TouchableOpacity
-              onPress={() => {
-                // leaveList(Id);
-                setShowFromDatePicker(true);
-              }}
-              style={{
-                width: '45%',
-                height: HEIGHT * 0.1,
-              }}>
-              <Text
+              <TouchableOpacity
+                onPress={() => {
+                  // leaveList(Id);
+                  setShowFromDatePicker(true);
+                }}
                 style={{
-                  color: GRAY,
+                  width: '45%',
+                  height: HEIGHT * 0.1,
                 }}>
-                From
-              </Text>
-              <View
+                <Text
+                  style={{
+                    color: GRAY,
+                  }}>
+                  From
+                </Text>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                  }}>
+                  <Text style={styles.dateText}>{fromDate.toDateString()}</Text>
+
+                  <Icon name="calendar-today" size={HEIGHT * 0.03} />
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  // leaveList(Id);
+                  setShowToDatePicker(true);
+                }}
                 style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
+                  width: '45%',
+                  height: HEIGHT * 0.1,
                 }}>
-                <Text style={styles.dateText}>{fromDate.toDateString()}</Text>
+                <Text
+                  style={{
+                    color: GRAY,
+                  }}>
+                  To
+                </Text>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                  }}>
+                  <Text style={styles.dateText}>{toDate.toDateString()}</Text>
 
-                <Icon name="calendar-today" size={HEIGHT * 0.03} />
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => {
-                // leaveList(Id);
-                setShowToDatePicker(true);
-              }}
-              style={{
-                width: '45%',
-                height: HEIGHT * 0.1,
-              }}>
-              <Text
-                style={{
-                  color: GRAY,
-                }}>
-                To
-              </Text>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                }}>
-                <Text style={styles.dateText}>{toDate.toDateString()}</Text>
+                  <Icon name="calendar-today" size={HEIGHT * 0.03} />
+                </View>
+              </TouchableOpacity>
+            </View>
+          </>
+        )}
 
-                <Icon name="calendar-today" size={HEIGHT * 0.03} />
-              </View>
-            </TouchableOpacity>
-          </View>
+        {showFromDatePicker && (
+          <DateTimePicker
+            value={fromDate}
+            mode="date"
+            display="default"
+            onChange={(event, selectedDate) => {
+              setShowFromDatePicker(false);
+              if (selectedDate) {
+                setFromDate(selectedDate);
+              }
+            }}
+          />
+        )}
 
-          {showFromDatePicker && (
-            <DateTimePicker
-              value={fromDate}
-              mode="date"
-              display="default"
-              onChange={(event, selectedDate) => {
-                setShowFromDatePicker(false);
-                if (selectedDate) {
-                  setFromDate(selectedDate);
-                }
-              }}
-            />
-          )}
-
-          {showToDatePicker && (
-            <DateTimePicker
-              value={toDate}
-              mode="date"
-              display="default"
-              onChange={(event, selectedDate) => {
-                setShowToDatePicker(false);
-                if (selectedDate) {
-                  setToDate(selectedDate);
-                }
-              }}
-            />
-          )}
-
+        {showToDatePicker && (
+          <DateTimePicker
+            value={toDate}
+            mode="date"
+            display="default"
+            onChange={(event, selectedDate) => {
+              setShowToDatePicker(false);
+              if (selectedDate) {
+                setToDate(selectedDate);
+              }
+            }}
+          />
+        )}
+        {Route.Name !== 'Holiday Register' && (
           <TouchableOpacity style={styles.button} onPress={handleApplyLeave}>
             <LinearGradient
               colors={['#b4000a', '#ff6347']}
@@ -429,47 +620,64 @@ const Getreports = ({navigation, route}) => {
               <Text style={styles.buttonText}>Apply</Text>
             </LinearGradient>
           </TouchableOpacity>
+        )}
 
-          {check === false ? (
-            <>
-              <TableHeader />
-              <View
-                style={{
-                  height: HEIGHT * 0.7,
-                }}>
-                <FlatList
-                  data={data}
-                  renderItem={({item}) => <ListView item={item} />}
-                  keyExtractor={(item, index) => index.toString()}
-                  ListFooterComponent={
-                    <View
-                      style={{
-                        height: 50,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                      }}></View>
-                  }
-                />
-              </View>
-            </>
-          ) : (
+        {check === false && (
+          <>
+            <TableHeader />
             <View
               style={{
-                height: HEIGHT * 0.1,
-                justifyContent: 'center',
-                alignItems: 'center',
-                marginBottom: 10,
+                height: HEIGHT * 0.7,
               }}>
-              <Text
-                style={{
-                  fontSize: 16,
-                  color: RED,
-                }}>
-                No records found for selected date range.
-              </Text>
+              <FlatList
+                data={data}
+                renderItem={({item}) => <ListView item={item} />}
+                keyExtractor={(item, index) => index.toString()}
+                ListFooterComponent={
+                  <View
+                    style={{
+                      height: 50,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    }}></View>
+                }
+              />
             </View>
-          )}
-        </ScrollView>
+          </>
+        )}
+        {check === true ? (
+          <>
+            <View
+              style={{
+                height: HEIGHT * 0.7,
+              }}>
+              <FlatList
+                data={Monthdata}
+                renderItem={({item}) => <Card item={item} />}
+                keyExtractor={(item, index) => index.toString()}
+                ListFooterComponent={
+                  <View style={styles.footerContainer}></View>
+                }
+              />
+            </View>
+          </>
+        ) : (
+          <View
+            style={{
+              height: HEIGHT * 0.1,
+              justifyContent: 'center',
+              alignItems: 'center',
+              marginBottom: 10,
+            }}>
+            <Text
+              style={{
+                fontSize: 16,
+                color: RED,
+              }}>
+              No records found for selected date range.
+            </Text>
+          </View>
+        )}
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -577,5 +785,48 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  cardContainer: {
+    backgroundColor: '#fff',
+    padding: 16,
+    marginVertical: 8,
+    marginHorizontal: 16,
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    borderLeftWidth: 3,
+    elevation: 2, // For Android shadow
+  },
+  cardText: {
+    fontSize: 14,
+    color: '#333',
+    marginBottom: 4,
+    fontFamily: 'Poppins-SemiBold',
+  },
+  cardText1: {
+    fontSize: 14,
+    color: 'black',
+    marginBottom: 4,
+    fontFamily: 'Poppins-Bold',
+  },
+  listContainer: {
+    height: HEIGHT * 0.7,
+  },
+  footerContainer: {
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  noRecordsContainer: {
+    height: HEIGHT * 0.1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  noRecordsText: {
+    fontSize: 16,
+    color: RED,
   },
 });
