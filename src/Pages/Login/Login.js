@@ -98,36 +98,60 @@ const Login = ({navigation}) => {
 
     try {
       const res = await POSTNETWORK(url, data);
-      console.log('Response:', res);
+      console.log('reddd', res);
 
       if (res.msg === 'Logged in successfully...') {
-        // Success handling...
+        // console.log('status');
+        // Alert.alert('hiii');
+        // Store login response (if needed)
         await storeObjByKey('loginResponse', res.data);
         await storeObjByKey('userid', username);
         await storeObjByKey('password', password);
-
+        // Store username and password securely in SQLite
+        const db = SQLitePlugin.openDatabase({
+          name: 'test.db',
+          version: '1.0',
+          description: '',
+          size: 1,
+        });
+        db.transaction(tx => {
+          tx.executeSql(
+            'CREATE TABLE IF NOT EXISTS UserCredentials (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, password TEXT)',
+            [],
+            () => {
+              console.log('Table UserCredentials created successfully');
+            },
+            error => {
+              console.error('Error creating table UserCredentials:', error);
+            },
+          );
+          tx.executeSql(
+            'INSERT INTO UserCredentials (username, password) VALUES (?, ?)',
+            [username, password],
+            (_, result) => {
+              console.log('User credentials saved successfully:', result);
+            },
+            error => {
+              console.error('Error saving user credentials:', error);
+            },
+          );
+        });
+        // Dispatch action to update user token or navigate to Home
         dispatch(checkuserToken());
       } else {
-        Alert.alert('Login failed', res.msg || 'Unknown error', [
+        Alert.alert('Login failed', res.msg, [
           {text: 'OK', onPress: () => console.log('OK Pressed')},
         ]);
-        console.error('Login failed:', res.msg || 'Unknown error');
+        console.error('Login failed:', res.Message); // Handle login failure
       }
     } catch (error) {
-      console.error('Network error:', error);
-      Alert.alert('Network Error', 'Failed to connect to server.');
-    } finally {
-      setLoading(false);
+      console.error('Network error:', error); // Handle network errors
+      // Alert.alert('Network Error', error);
     }
   };
 
   const handleLogin = async () => {
-    if (username === '' || password === '' || clientUrl === '') {
-      Alert.alert('Error', 'Please fill all fields');
-      return;
-    } else {
-      await login();
-    }
+    await login();
   };
 
   const fetchCredentials = () => {
@@ -221,17 +245,17 @@ const Login = ({navigation}) => {
               onChangeText={setPassword}
             />
             {/* {loading === true ? (
-                <ActivityIndicator
-                  size="large"
-                  color="#000"
-                  animating={loading}
-                  style={{
-                    position: 'absolute',
-                    top: HEIGHT * 0.5,
-                    left: WIDTH * 0.5,
-                  }}
-                />
-              ) : ( */}
+              <ActivityIndicator
+                size="large"
+                color="#000"
+                animating={loading}
+                style={{
+                  position: 'absolute',
+                  top: HEIGHT * 0.5,
+                  left: WIDTH * 0.5,
+                }}
+              />
+            ) : ( */}
             <TouchableOpacity
               style={styles.button}
               onPress={() => {
