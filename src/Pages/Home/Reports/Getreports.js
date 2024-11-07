@@ -150,6 +150,40 @@ const Getreports = ({navigation, route}) => {
           </Text>
         </View>
       );
+    } else if (name === 'Presentee Register') {
+      return (
+        <View style={[styles.cardContainer, {borderLeftColor: 'green'}]}>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+            }}>
+            <Text style={styles.cardText1}>
+              Date: <Text style={styles.cardText}>{item.Date}</Text>
+            </Text>
+            <Text style={styles.cardText1}>
+              In Time: <Text style={styles.cardText}>{item.In}</Text>
+            </Text>
+          </View>
+
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+            }}>
+            <Text style={styles.cardText1}>
+              Out Time: <Text style={styles.cardText}>{item.Out}</Text>
+            </Text>
+            <Text style={styles.cardText1}>
+              Status: <Text style={styles.cardText}>{item.Status}</Text>
+            </Text>
+          </View>
+          <Text style={styles.cardText1}>
+            Total Hours:{' '}
+            <Text style={styles.cardText}>{item['Total(Hour)']}</Text>
+          </Text>
+        </View>
+      );
     } else if (name === 'Late Commer Register') {
       return (
         <View style={[styles.cardContainer, {borderLeftColor: 'red'}]}>
@@ -370,19 +404,22 @@ const Getreports = ({navigation, route}) => {
     {
       let color = '';
       let char = '';
-      if (item.Status || item.day_status == 'ABSENT') {
+      if (item.Status === 'ABSENT' || item.day_status === 'ABSENT') {
         color = RED;
         char = 'Absent';
-      } else if (item.Status || item.day_status == 'PRESENT') {
+      } else if (item.Status === 'PRESENT' || item.day_status === 'PRESENT') {
         color = GREEN;
         char = 'Present';
-      } else if (item.Status || item.day_status == 'WEEKLYOFF') {
+      } else if (
+        item.Status === 'WEEKLYOFF' ||
+        item.day_status === 'WEEKLYOFF'
+      ) {
         color = GRAY;
         char = 'Weekoff';
-      } else if (item.Status || item.day_status == 'LEAVEDAY') {
+      } else if (item.Status === 'LEAVEDAY' || item.day_status === 'LEAVEDAY') {
         color = ORANGE;
         char = 'Leave';
-      } else if (item.Status || item.day_status == 'HALFDAY') {
+      } else if (item.Status === 'HALFDAY' || item.day_status === 'HALFDAY') {
         color = BLUE;
         char = 'Half Day';
       } else if (

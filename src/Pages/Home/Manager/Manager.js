@@ -10,18 +10,18 @@ import {
   FlatList,
   Image,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
-import {StatusBar} from 'react-native';
-import {HEIGHT, WIDTH} from '../../../constants/config';
+import React, { useEffect, useState } from 'react';
+import { StatusBar } from 'react-native';
+import { HEIGHT, WIDTH } from '../../../constants/config';
 import LinearGradient from 'react-native-linear-gradient';
-import {BLACK, BLUE, GRAY, ORANGE, RED, WHITE} from '../../../constants/color';
+import { BLACK, BLUE, GRAY, ORANGE, RED, WHITE } from '../../../constants/color';
 import moment from 'moment';
 import SQLitePlugin from 'react-native-sqlite-2';
-import {getObjByKey} from '../../../utils/Storage';
-import {Icon} from '@rneui/themed';
-import {COMPLETE, MAN, TIME, TIMEOUT} from '../../../constants/imagepath';
+import { getObjByKey } from '../../../utils/Storage';
+import { Icon } from '@rneui/themed';
+import { COMPLETE, MAN, TIME, TIMEOUT } from '../../../constants/imagepath';
 
-const Manager = ({navigation}) => {
+const Manager = ({ navigation }) => {
   const [selectedDate, setSelectedDate] = useState(
     moment().format('YYYY-MM-DD'),
   );
@@ -72,7 +72,7 @@ const Manager = ({navigation}) => {
         tx.executeSql(
           'SELECT client_url FROM ApiResponse ORDER BY id DESC LIMIT 1',
           [],
-          (_, {rows}) => {
+          (_, { rows }) => {
             const url = rows.item(0)?.client_url || '';
             setClientUrl(url);
             resolve();
@@ -134,7 +134,7 @@ const Manager = ({navigation}) => {
     }
   };
 
-  const ListView = ({item}) => {
+  const ListView = ({ item }) => {
     let x = item.Status;
     let color;
     if (x === 'ABSENT') {
@@ -532,11 +532,11 @@ const Manager = ({navigation}) => {
               />
               <View
                 style={{
-                  width: '15%',
+                  width: '18%',
                   height: '100%',
                   backgroundColor: 'white',
                   alignItems: 'center',
-                  // padding: 5,
+                  padding: 1,
                 }}>
                 <Text
                   style={{
@@ -1065,7 +1065,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     zIndex: 999,
     shadowColor: '#ccc',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.5,
     shadowRadius: 50,
   },

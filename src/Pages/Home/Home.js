@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   SafeAreaView,
   StatusBar,
@@ -19,9 +19,9 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import LinearGradient from 'react-native-linear-gradient';
-import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import moment from 'moment'; // Import moment
-import {HEIGHT, WIDTH} from '../Login/Login';
+import { HEIGHT, WIDTH } from '../Login/Login';
 import {
   BELL,
   ClientVisit,
@@ -50,12 +50,12 @@ import {
   RED,
   WHITE,
 } from '../../constants/color';
-import {Icon} from '@rneui/themed';
-import {clearAll, getObjByKey} from '../../utils/Storage';
-import {checkuserToken} from '../../redux/actions/auth';
-import {useDispatch} from 'react-redux';
+import { Icon } from '@rneui/themed';
+import { clearAll, getObjByKey } from '../../utils/Storage';
+import { checkuserToken } from '../../redux/actions/auth';
+import { useDispatch } from 'react-redux';
 import SQLitePlugin from 'react-native-sqlite-2';
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 
 // const get = async () => {
 //   let tree = await getObjByKey('loginResponse');
@@ -108,20 +108,20 @@ const Dashboard = () => {
     <FlatList
       numColumns={4}
       data={[
-        {img: LeaveEntry, text: 'Leave Entry', to: 'LeaveEntry'},
-        {img: LeaveStatus, text: 'Leave Status', to: 'LeaveStatus'},
-        {img: LeaveBalance, text: 'Leave Bal.', to: 'LeaveBalance'},
-        {img: LeaveStatus, text: 'C.Off', to: 'CoffEntry'},
-        {img: Outdoor, text: 'Outdoor', to: 'OutDoor'},
-        {img: ManualPunch, text: 'In/Out', to: 'InOut'},
-        {img: ClientVisit, text: 'Client Visit', to: 'ClientVisit'},
-        {img: Supervisor, text: 'Supervisor', to: null},
-        {img: ExpenseEntry, text: 'Expense ', to: null},
-        {img: Odometer, text: 'Odometer', to: null},
-        {img: Payslip, text: 'Payslip', to: null},
-        {img: Task, text: 'Task', to: null},
+        { img: LeaveEntry, text: 'Leave Entry', to: 'LeaveEntry' },
+        { img: LeaveStatus, text: 'Leave Status', to: 'LeaveStatus' },
+        { img: LeaveBalance, text: 'Leave Bal.', to: 'LeaveBalance' },
+        { img: LeaveStatus, text: 'C.Off', to: 'CoffEntry' },
+        { img: Outdoor, text: 'Outdoor', to: 'OutDoor' },
+        { img: ManualPunch, text: 'In/Out', to: 'InOut' },
+        { img: ClientVisit, text: 'Client Visit', to: 'ClientVisit' },
+        { img: Supervisor, text: 'Supervisor', to: null },
+        { img: ExpenseEntry, text: 'Expense ', to: null },
+        { img: Odometer, text: 'Odometer', to: null },
+        { img: Payslip, text: 'Payslip', to: null },
+        { img: Task, text: 'Task', to: null },
       ]}
-      renderItem={({item}) => (
+      renderItem={({ item }) => (
         <TouchableOpacity
           style={styles.itemContainer}
           onPress={() => {
@@ -164,10 +164,10 @@ const Dashboard = () => {
 
 const TableHeader = () => {
   const headers = [
-    {text: 'Date', key: 'Date'},
-    {text: 'Check In', key: 'In'},
-    {text: 'Check Out', key: 'Out'},
-    {text: 'Working Hrs', key: 'Total_Hour'},
+    { text: 'Date', key: 'Date' },
+    { text: 'Check In', key: 'In' },
+    { text: 'Check Out', key: 'Out' },
+    { text: 'Working Hrs', key: 'Total_Hour' },
   ];
   return (
     <View
@@ -178,7 +178,7 @@ const TableHeader = () => {
         justifyContent: 'space-around',
       }}>
       {headers.map(header => (
-        <View style={{width: WIDTH / 4, alignItems: 'center'}} key={header.key}>
+        <View style={{ width: WIDTH / 4, alignItems: 'center' }} key={header.key}>
           <Text
             style={{
               fontSize: 14,
@@ -208,7 +208,7 @@ const monthNames = [
   'December',
 ];
 
-const ListView = ({item}) => {
+const ListView = ({ item }) => {
   console.log('item', item);
   let color = '';
   let char = '';
@@ -249,12 +249,13 @@ const ListView = ({item}) => {
         <View
           style={{
             height: HEIGHT * 0.03,
-            // width: WIDTH * 0.05,
+            // width: WIDTH * 0.1,
             backgroundColor: color,
             borderRadius: 2,
             justifyContent: 'center',
             alignItems: 'center',
             elevation: 2,
+            marginHorizontal: 5,
           }}>
           <Text
             style={{
@@ -331,7 +332,7 @@ const Attendance = () => {
         tx.executeSql(
           'SELECT client_url FROM ApiResponse ORDER BY id DESC LIMIT 1',
           [],
-          (_, {rows}) => {
+          (_, { rows }) => {
             const url = rows.item(0)?.client_url || '';
             resolve(url);
           },
@@ -356,7 +357,7 @@ const Attendance = () => {
     } catch (e) {
       console.error('Error retrieving details:', e);
     }
-    return {Id: null, Sl: null};
+    return { Id: null, Sl: null };
   };
 
   const initialize = async () => {
@@ -419,7 +420,7 @@ const Attendance = () => {
         }}>
         <FlatList
           data={data}
-          renderItem={({item}) => <ListView item={item} />}
+          renderItem={({ item }) => <ListView item={item} />}
           keyExtractor={(item, index) => index.toString()}
           ListFooterComponent={
             <View
@@ -467,15 +468,15 @@ const Home = () => {
   const flatListRef = useRef(null);
 
   useEffect(() => {
-    headerCardHeight.value = withTiming(HEIGHT * 0.5, {duration: 1500});
-    bottomViewTranslateY.value = withTiming(0, {duration: 2000}); // Animate to its final position
+    headerCardHeight.value = withTiming(HEIGHT * 0.5, { duration: 1500 });
+    bottomViewTranslateY.value = withTiming(0, { duration: 2000 }); // Animate to its final position
 
     if (flatListRef.current) {
       const todayIndex = dates.findIndex(date =>
         moment(date).isSame(moment(), 'day'),
       );
       if (todayIndex !== -1) {
-        flatListRef.current.scrollToIndex({index: todayIndex, animated: true});
+        flatListRef.current.scrollToIndex({ index: todayIndex, animated: true });
         setSelectedDate(dates[todayIndex]);
       }
     }
@@ -489,13 +490,13 @@ const Home = () => {
 
   const bottomViewStyle = useAnimatedStyle(() => {
     return {
-      transform: [{translateY: bottomViewTranslateY.value}],
+      transform: [{ translateY: bottomViewTranslateY.value }],
     };
   });
 
   // Function to generate initial dates
   function generateInitialDates() {
-    const initialDates = Array.from({length: 30}, (_, i) =>
+    const initialDates = Array.from({ length: 30 }, (_, i) =>
       moment()
         .subtract(15 - i, 'days')
         .format('YYYY-MM-DD'),
@@ -507,7 +508,7 @@ const Home = () => {
   // Function to load more dates
   const loadMoreDates = () => {
     const lastDate = moment(dates[dates.length - 1], 'YYYY-MM-DD');
-    const newDates = Array.from({length: 365}, (_, i) =>
+    const newDates = Array.from({ length: 365 }, (_, i) =>
       lastDate.subtract(i + 1, 'days').format('YYYY-MM-DD'),
     );
     setDates([...dates, ...newDates]);
@@ -519,7 +520,7 @@ const Home = () => {
     index,
   });
 
-  const renderDateItem = ({item}) => {
+  const renderDateItem = ({ item }) => {
     console.log('itrmem', item);
     const isSelected = item === selectedDate;
     const isToday = moment(item).isSame(moment(), 'day');
@@ -625,8 +626,8 @@ const Home = () => {
         <Animated.View style={[styles.header, headerStyle]}>
           <LinearGradient
             colors={['#ff6347', '#b4000a']}
-            start={{x: 0, y: 0}}
-            end={{x: 1, y: 1}}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
             style={styles.gradient}>
             <View
               style={{
@@ -740,11 +741,12 @@ const Home = () => {
 
               <View
                 style={{
-                  height: '70%',
-                  width: '35%',
+                  height: '80%',
+                  width: '50%',
                   flexDirection: 'row',
                   justifyContent: 'space-around',
                   paddingLeft: 5,
+                  padding: 2,
                 }}>
                 <Icon
                   name="calendar"
@@ -960,7 +962,7 @@ const Home = () => {
                     fontSize: 28,
                     fontFamily: 'Poppins-Bold',
                   }}>
-                  {half}
+                  {half + woff}
                 </Text>
               </View>
             </View>

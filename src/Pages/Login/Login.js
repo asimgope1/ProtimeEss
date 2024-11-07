@@ -66,7 +66,7 @@ const Login = ({navigation}) => {
     };
   });
 
-  const fetchClientUrlFromSQLite = () => {
+  const fetchClientUrlFromSQLite = async () => {
     db.transaction(tx => {
       tx.executeSql(
         'SELECT client_url FROM ApiResponse ORDER BY id DESC LIMIT 1',
@@ -86,9 +86,12 @@ const Login = ({navigation}) => {
     headerCardHeight.value = withTiming(HEIGHT * 0.5, {duration: 1500});
     loginContainerTranslateY.value = withTiming(0, {duration: 1500});
     animatedViewTranslateX.value = withTiming(0, {duration: 1500});
+    const call = async () => {
+      await fetchClientUrlFromSQLite();
+      await fetchCredentials();
+    };
 
-    fetchClientUrlFromSQLite();
-    fetchCredentials();
+    call();
   }, []);
 
   const login = async () => {
@@ -100,7 +103,7 @@ const Login = ({navigation}) => {
       const res = await POSTNETWORK(url, data);
       console.log('reddd', res);
 
-      if (res.msg === 'Logged in successfully...') {
+      if (res.status === 'success') {
         // console.log('status');
         // Alert.alert('hiii');
         // Store login response (if needed)
@@ -151,7 +154,12 @@ const Login = ({navigation}) => {
   };
 
   const handleLogin = async () => {
-    await login();
+    if (username === '' || password === '') {
+      Alert.alert('Error', 'Please enter both username and password');
+      return;
+    } else {
+      await login();
+    }
   };
 
   const fetchCredentials = () => {

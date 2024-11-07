@@ -205,6 +205,7 @@ const CoffEntry = ({navigation}) => {
         requestOptions,
       );
       const result = await response.json();
+      console.log('balance', result);
       setBalance(result.Leave_balance);
     } catch (error) {
       console.error('Error fetching leave balance:', error);
