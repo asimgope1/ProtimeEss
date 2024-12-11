@@ -227,8 +227,12 @@ const Leave = () => {
         contentContainerStyle={{
           flexGrow: 1,
           backgroundColor: WHITE,
+          padding:20,
+          alignItems:'center'
+
+          
         }}>
-        <View style={styles.container}>
+        {/* <View style={styles.container}> */}
           <View style={styles.checklistContainer}>
             <CheckBox
               title="Full Day"
@@ -383,7 +387,7 @@ const Leave = () => {
                 height: HEIGHT * 0.038,
                 flexDirection: 'row',
                 justifyContent: 'space-between',
-                marginTop: 5,
+                // marginTop: 5,
               }}>
               <Text
                 style={{
@@ -434,7 +438,7 @@ const Leave = () => {
               height: HEIGHT * 0.038,
               flexDirection: 'row',
               justifyContent: 'space-between',
-              marginTop: 5,
+              // marginTop: 5,
             }}>
             <Text
               style={{
@@ -461,7 +465,7 @@ const Leave = () => {
               height: HEIGHT * 0.038,
               flexDirection: 'row',
               justifyContent: 'space-between',
-              marginTop: 5,
+              // marginTop: 5,
             }}>
             <Text
               style={{
@@ -497,7 +501,7 @@ const Leave = () => {
               height: HEIGHT * 0.038,
               flexDirection: 'row',
               justifyContent: 'space-between',
-              marginTop: 5,
+              // marginTop: 5,
             }}>
             <Text
               style={{
@@ -535,7 +539,7 @@ const Leave = () => {
               <Text style={styles.buttonText}>Apply</Text>
             </LinearGradient>
           </TouchableOpacity>
-        </View>
+        {/* </View> */}
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -614,6 +618,7 @@ export default LeaveEntry;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    // height:HEIGHT*1.5,
     backgroundColor: WHITE,
     alignItems: 'center',
     width: '100%',
@@ -734,8 +739,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
 
     alignSelf: 'center',
-    marginTop: 10,
-    marginBottom: 20,
+    // marginTop: 10,
+    // marginBottom: 20,
   },
   dateText: {
     color: BLACK,

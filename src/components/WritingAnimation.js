@@ -9,7 +9,7 @@ const WritingAnimation = ({text}) => {
     Animated.timing(animatedValue, {
       toValue: text.length,
       duration: text.length * 100, // Adjust this to control the speed
-      useNativeDriver: false,
+      usecNativeDriver: false,
     }).start();
   }, [text, animatedValue]);
 
