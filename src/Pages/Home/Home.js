@@ -115,11 +115,11 @@ const Dashboard = () => {
         { img: Outdoor, text: 'Outdoor', to: 'OutDoor' },
         { img: ManualPunch, text: 'In/Out', to: 'InOut' },
         { img: ClientVisit, text: 'Client Visit', to: 'ClientVisit' },
-        { img: Supervisor, text: 'Supervisor', to: null },
-        { img: ExpenseEntry, text: 'Expense ', to: null },
-        { img: Odometer, text: 'Odometer', to: null },
-        { img: Payslip, text: 'Payslip', to: null },
-        { img: Task, text: 'Task', to: null },
+        { img: Supervisor, text: 'Supervisor', to: 'SuperVisor' },
+        { img: ExpenseEntry, text: 'Expense ', to: 'Expense' },
+        { img: Odometer, text: 'Odometer', to: 'Odometer' },
+        { img: Payslip, text: 'Payslip', to: 'Payslip' },
+        { img: Task, text: 'Task', to: 'Task' },
       ]}
       renderItem={({ item }) => (
         <TouchableOpacity

@@ -23,6 +23,11 @@ import InOut from '../Pages/Home/Dashboard/InOut';
 import getreports from '../Pages/Home/Reports/Getreports';
 import Getreports from '../Pages/Home/Reports/Getreports';
 import ClientVisit from '../Pages/Home/Dashboard/ClientVisit';
+import SuperVisor from '../Pages/Home/Dashboard/SuperVisor';
+import Expense from '../Pages/Home/Dashboard/Expense';
+import Odometer from '../Pages/Home/Dashboard/Odometer';
+import Payslip from '../Pages/Home/Dashboard/Payslip';
+import Task from '../Pages/Home/Dashboard/Task';
 
 // Define the HomeStack
 const HomeStackNavigator = createNativeStackNavigator();
@@ -196,6 +201,31 @@ const MainStack = () => {
       <MainStackNavigator.Screen
         name="ClientVisit"
         component={ClientVisit}
+        options={{headerShown: false, animation: 'slide_from_right'}}
+      />
+      <MainStackNavigator.Screen
+        name="SuperVisor"
+        component={SuperVisor}
+        options={{headerShown: false, animation: 'slide_from_right'}}
+      />
+      <MainStackNavigator.Screen
+        name="Expense"
+        component={Expense}
+        options={{headerShown: false, animation: 'slide_from_right'}}
+      />
+      <MainStackNavigator.Screen
+        name="Odometer"
+        component={Odometer}
+        options={{headerShown: false, animation: 'slide_from_right'}}
+      />
+      <MainStackNavigator.Screen
+        name="Payslip"
+        component={Payslip}
+        options={{headerShown: false, animation: 'slide_from_right'}}
+      />
+      <MainStackNavigator.Screen
+        name="Task"
+        component={Task}
         options={{headerShown: false, animation: 'slide_from_right'}}
       />
     </MainStackNavigator.Navigator>
