@@ -64,7 +64,7 @@ import { useNavigation } from '@react-navigation/native';
 const get = async () => {
   try {
     let tree = await getObjByKey('loginResponse');
-    console.log('fredc', tree);
+    // console.log('fredc', tree);
 
     if (tree && tree.length > 0) {
       const profile = tree[0]; // Assuming the profile details are in the first object of the array
@@ -80,16 +80,16 @@ const get = async () => {
       const halfDay = profile.HALFDAY;
       const woffDays = profile.WOFF;
 
-      console.log('Employee Code:', empCode);
-      console.log('Employee Name:', empName);
-      console.log('Employee Image:', empImage);
-      console.log('Department Name:', deptName);
-      console.log('Designation Name:', desgName);
-      console.log('Present Days:', presentDays);
-      console.log('Absent Days:', absentDays);
-      console.log('Leave Days:', leaveDays);
-      console.log('Half Day:', halfDay);
-      console.log('Weekly Off Days:', woffDays);
+      // console.log('Employee Code:', empCode);
+      // console.log('Employee Name:', empName);
+      // console.log('Employee Image:', empImage);
+      // console.log('Department Name:', deptName);
+      // console.log('Designation Name:', desgName);
+      // console.log('Present Days:', presentDays);
+      // console.log('Absent Days:', absentDays);
+      // console.log('Leave Days:', leaveDays);
+      // console.log('Half Day:', halfDay);
+      // console.log('Weekly Off Days:', woffDays);
 
       // You can now use these variables in your component or logic
       // For example, you could set them in the state if using a class component or useState if using a functional component
@@ -209,7 +209,7 @@ const monthNames = [
 ];
 
 const ListView = ({ item }) => {
-  console.log('item', item);
+  // console.log('item', item);
   let color = '';
   let char = '';
   if (item.Status == 'ABSENT') {
@@ -384,13 +384,13 @@ const Attendance = () => {
   }, []);
 
   const AttendanceApi = async (Sl, clientUrl) => {
-    console.log('clientUrl', selectedMonth, Sl);
+    // console.log('clientUrl', selectedMonth, Sl);
     try {
       const myHeaders = new Headers();
       myHeaders.append('Content-Type', 'application/json');
 
       const raw = `{staf_sl: ${Sl} , month: ${selectedMonth}}`;
-      console.log('dsd', raw);
+      // console.log('dsd', raw);
 
       const requestOptions = {
         method: 'POST',
@@ -403,7 +403,7 @@ const Attendance = () => {
         .then(response => response.json())
         .then(result => {
           setData(result?.data?.Table1);
-          console.log('check', result);
+          // console.log('check', result);
         })
         .catch(error => console.error(error));
     } catch (error) {
@@ -521,7 +521,7 @@ const Home = () => {
   });
 
   const renderDateItem = ({ item }) => {
-    console.log('itrmem', item);
+    // console.log('itrmem', item);
     const isSelected = item === selectedDate;
     const isToday = moment(item).isSame(moment(), 'day');
     const textStyle = {
@@ -572,7 +572,7 @@ const Home = () => {
   const get = async () => {
     try {
       let tree = await getObjByKey('loginResponse');
-      console.log('fredc', tree);
+      // console.log('fredc', tree);
 
       if (tree && tree.length > 0) {
         const profile = tree[0]; // Assuming the profile details are in the first object of the array

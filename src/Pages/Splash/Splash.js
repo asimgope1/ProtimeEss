@@ -1,16 +1,21 @@
-import React, {Fragment, useEffect} from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import {
   View,
   Image,
   SafeAreaView,
   ImageBackground,
   PermissionsAndroid,
+  Modal,
+  Text,
+  TouchableOpacity,
+  Alert,
+  Platform,
 } from 'react-native';
-import {BRAND} from '../../constants/color';
+import { BLACK, BRAND } from '../../constants/color';
 import LinearGradient from 'react-native-linear-gradient';
-import {BASE, LOGO, LOGO2} from '../../constants/imagepath';
-import {HEIGHT, MyStatusBar, WIDTH} from '../../constants/config';
-import {splashStyles} from './SplashStyles';
+import { BASE, LOGO, LOGO2 } from '../../constants/imagepath';
+import { HEIGHT, MyStatusBar, WIDTH } from '../../constants/config';
+import { splashStyles } from './SplashStyles';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -18,9 +23,39 @@ import Animated, {
 } from 'react-native-reanimated';
 import WritingAnimation from '../../components/WritingAnimation';
 import Geolocation from '@react-native-community/geolocation';
-import {storeObjByKey} from '../../utils/Storage';
+import { storeObjByKey } from '../../utils/Storage';
 
-const Splash = ({navigation}) => {
+const Splash = ({ navigation }) => {
+  const [showPermissionModal, setShowPermissionModal] = useState(false);
+
+  // Function to check if location permissions are granted
+  const checkPermissions = async () => {
+    try {
+      if (Platform.OS === 'android') {
+        const locationPermission = await PermissionsAndroid.check(
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        );
+        const coarseLocationPermission = await PermissionsAndroid.check(
+          PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
+        );
+        const backgroundLocationPermission = await PermissionsAndroid.check(
+          PermissionsAndroid.PERMISSIONS.ACCESS_BACKGROUND_LOCATION,
+        );
+        if (locationPermission && coarseLocationPermission && backgroundLocationPermission) {
+          return true; // All permissions are granted
+        } else {
+          return false; // Some permissions are missing
+        }
+      } else {
+        return true; // iOS handles permissions automatically
+      }
+    } catch (error) {
+      console.warn('Error checking permissions:', error);
+      return false;
+    }
+  };
+
+  // Function to request location permissions
   const requestLocationPermission = async () => {
     try {
       if (Platform.OS === 'android') {
@@ -35,14 +70,25 @@ const Splash = ({navigation}) => {
             buttonPositive: 'OK',
           },
         );
-        if (locationGranted === PermissionsAndroid.RESULTS.GRANTED) {
-          console.log('Location permission granted');
+        const coarseLocationGranted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
+        );
+        const backgroundLocationGranted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.ACCESS_BACKGROUND_LOCATION,
+        );
+
+        if (
+          locationGranted === PermissionsAndroid.RESULTS.GRANTED &&
+          coarseLocationGranted === PermissionsAndroid.RESULTS.GRANTED &&
+          backgroundLocationGranted === PermissionsAndroid.RESULTS.GRANTED
+        ) {
+          console.log('All permissions granted');
           getCurrentLocation();
         } else {
-          console.log('Location permission denied');
+          console.log('One or more permissions denied');
         }
       } else {
-        // For iOS, no need to request permissions manually, it's done automatically
+        // For iOS, permissions are handled automatically
         getCurrentLocation();
       }
     } catch (error) {
@@ -50,29 +96,39 @@ const Splash = ({navigation}) => {
     }
   };
 
-  const getCurrentLocation = () => {
-    Geolocation.getCurrentPosition(
-      position => {
-        const {latitude, longitude} = position.coords;
-        console.log('Latitude:', latitude);
-        console.log('Longitude:', longitude);
-
-        // Call the reverse geocode API
-        reverseGeocode(latitude, longitude);
-      },
-      error => {
-        console.error('Error getting location:', error);
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 15000,
-        maximumAge: 10000,
-      },
-    );
+  const getCurrentLocation = async () => {
+    return new Promise((resolve, reject) => {
+      Geolocation.getCurrentPosition(
+        position => {
+          const { latitude, longitude } = position.coords;
+          console.log('Latitude:', latitude);
+          console.log('Longitude:', longitude);
+          reverseGeocode(latitude, longitude);
+          resolve({ latitude, longitude });
+        },
+        error => {
+          console.error('Error getting location:', error);
+          if (error.code === 1) {
+            Alert.alert('Permission Denied', 'Location permission is required to access your location.');
+          } else if (error.code === 2) {
+            Alert.alert('Position Unavailable', 'Could not determine your location. Please try again.');
+          } else if (error.code === 3) {
+            Alert.alert('Request Timed Out', 'Location request timed out. Please try again.');
+          } else {
+            Alert.alert('Unknown Error', 'An unexpected error occurred. Please try again later.');
+          }
+          reject(error);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 15000,
+          maximumAge: 10000,
+        },
+      );
+    });
   };
 
   const reverseGeocode = async (latitude, longitude) => {
-    console.log('hiii');
     try {
       const response = await fetch(
         `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`,
@@ -86,44 +142,50 @@ const Splash = ({navigation}) => {
   };
 
   useEffect(() => {
-    requestLocationPermission();
+    const checkAndRequestPermissions = async () => {
+      const permissionsGranted = await checkPermissions();
+      if (!permissionsGranted) {
+        setShowPermissionModal(true); // Show the modal if permissions are not granted
+      } else {
+        getCurrentLocation(); // If permissions are granted, get the location
+        setTimeout(() => {
+          navigation.navigate('Check');
+        }, 1000);
+      }
+    };
+
+    checkAndRequestPermissions();
   }, []);
 
   const logoTranslateY = useSharedValue(HEIGHT);
   const logo2TranslateY = useSharedValue(-HEIGHT);
 
   useEffect(() => {
-    logoTranslateY.value = withTiming(0, {duration: 500});
-    logo2TranslateY.value = withTiming(0, {duration: 500});
-
-    setTimeout(() => {
-      navigation.navigate('Check');
-    }, 2000);
+    logoTranslateY.value = withTiming(0, { duration: 500 });
+    logo2TranslateY.value = withTiming(0, { duration: 500 });
   }, []);
 
   const logoStyle = useAnimatedStyle(() => {
     return {
-      transform: [{translateY: logoTranslateY.value}],
+      transform: [{ translateY: logoTranslateY.value }],
     };
   });
 
   const logo2Style = useAnimatedStyle(() => {
     return {
-      transform: [{translateY: logo2TranslateY.value}],
+      transform: [{ translateY: logo2TranslateY.value }],
     };
   });
 
   return (
     <Fragment>
       <MyStatusBar backgroundColor={'transparent'} barStyle={'dark-content'} />
-      {/* <SafeAreaView style={splashStyles.maincontainer}> */}
       <ImageBackground
         source={BASE}
         style={{
           flex: 1,
           width: WIDTH,
           alignItems: 'center',
-          // justifyContent: 'center',
           backgroundColor: 'rgb(255, 0, 0)',
         }}>
         <View
@@ -131,7 +193,6 @@ const Splash = ({navigation}) => {
             marginTop: HEIGHT * 0.3,
             width: WIDTH * 0.5,
             height: HEIGHT * 0.2,
-            // justifyContent: 'space-evenly',
             alignItems: 'center',
             alignSelf: 'center',
           }}>
@@ -158,9 +219,73 @@ const Splash = ({navigation}) => {
             />
           </Animated.View>
         </View>
-        {/* <WritingAnimation text="Welcome to Our App!" /> */}
       </ImageBackground>
-      {/* </SafeAreaView> */}
+
+      <Modal
+        transparent={true}
+        visible={showPermissionModal}
+        animationType="slide"
+        onRequestClose={() => setShowPermissionModal(false)}>
+        <View
+          style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          }}>
+          <View
+            style={{
+              width: WIDTH * 0.8,
+              backgroundColor: 'white',
+              borderRadius: 10,
+              padding: 20,
+              alignItems: 'center',
+            }}>
+            <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 10 }}>
+              Location Permission
+            </Text>
+            <Text style={{ textAlign: 'center', marginBottom: 20, color: BLACK, fontSize: 16 }}>
+              This app needs access to your location, including in the background, to provide location-based services.
+            </Text>
+            <TouchableOpacity
+              style={{
+                backgroundColor: '#4CAF50',
+                padding: 10,
+                borderRadius: 5,
+                marginBottom: 10,
+                width: '100%',
+                alignItems: 'center',
+              }}
+              onPress={async () => {
+                await requestLocationPermission();
+                setShowPermissionModal(false);
+
+                // Add a delay for better UX before navigating
+                setTimeout(() => {
+                  navigation.navigate('Check');
+                }, 1000);
+              }}>
+              <Text style={{ color: 'white', fontWeight: 'bold' }}>Allow</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{
+                backgroundColor: '#f44336',
+                padding: 10,
+                borderRadius: 5,
+                width: '100%',
+                alignItems: 'center',
+              }}
+              onPress={() => {
+                setShowPermissionModal(false);
+                setTimeout(() => {
+                  navigation.navigate('Check');
+                }, 1000);
+              }}>
+              <Text style={{ color: 'white', fontWeight: 'bold' }}>Deny</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </Fragment>
   );
 };
