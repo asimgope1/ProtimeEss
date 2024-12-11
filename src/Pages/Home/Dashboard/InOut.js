@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -13,21 +13,21 @@ import {
   BackHandler,
   Alert,
 } from 'react-native';
-import {getObjByKey} from '../../../utils/Storage';
+import { getObjByKey } from '../../../utils/Storage';
 import SQLitePlugin from 'react-native-sqlite-2';
-import {HEIGHT, WIDTH} from '../../../constants/config';
-import {BLACK, GRAY, RED, WHITE} from '../../../constants/color';
+import { HEIGHT, WIDTH } from '../../../constants/config';
+import { BLACK, GRAY, RED, WHITE } from '../../../constants/color';
 import Header from '../../../components/Header';
-import {CheckBox, Icon} from '@rneui/themed';
-import {Picker} from '@react-native-picker/picker';
-import {green} from 'react-native-reanimated/lib/typescript/reanimated2/Colors';
+import { CheckBox, Icon } from '@rneui/themed';
+import { Picker } from '@react-native-picker/picker';
+import { green } from 'react-native-reanimated/lib/typescript/reanimated2/Colors';
 import LinearGradient from 'react-native-linear-gradient';
 import WebView from 'react-native-webview';
-import {useFocusEffect} from '@react-navigation/native';
-import {launchCamera} from 'react-native-image-picker';
+import { useFocusEffect } from '@react-navigation/native';
+import { launchCamera } from 'react-native-image-picker';
 import RNFS from 'react-native-fs';
 
-const InOut = ({navigation}) => {
+const InOut = ({ navigation }) => {
   const [clientUrl, setClientUrl] = useState('');
   const [Id, setID] = useState();
   const [Sl, setSl] = useState();
@@ -71,8 +71,17 @@ const InOut = ({navigation}) => {
   }, []);
 
   const handleApplyLeave = base64 => {
+
+    setLoading(true);
+    // Check if Latitude and Longitude are valid
+    if (!Latitude || !Longitude) {
+      alert('Location data is missing. Please ensure your GPS is enabled and try again.');
+      return; // Exit the function if validation fails
+    }
+
     const myHeaders = new Headers();
     myHeaders.append('Content-Type', 'application/json');
+
     const raw = JSON.stringify({
       loc_cd: Id,
       staf_sl: Sl,
@@ -91,27 +100,43 @@ const InOut = ({navigation}) => {
       log_status: 'P',
       post_type: status,
     });
+
     console.log('raw', raw);
+
     const requestOptions = {
       method: 'POST',
       headers: myHeaders,
       body: raw,
       redirect: 'follow',
     };
+
     fetch(`${clientUrl}api/manualposting`, requestOptions)
       .then(response => response.json())
       .then(result => {
         console.log('reddddd', result);
         if (result.Code === '200') {
+          setLoading(false);
+
+          // clear all state
+          setLeaveType('');
+          setstatus('');
+          setNote('');
+          setImage(null);
           alert(result.msg);
         }
         console.log('applyyy', result);
+        setLeaveType('');
+        setstatus('');
+        setNote('');
+        setImage(null);
+        setLoading(false);
       })
       .catch(error => console.error(error));
   };
 
+
   const pickImage = () => {
-    launchCamera({mediaType: 'photo'}, response => {
+    launchCamera({ mediaType: 'photo' }, response => {
       if (response.assets && response.assets.length > 0) {
         const image = response.assets[0];
         setImage(image.uri);
@@ -223,7 +248,7 @@ const InOut = ({navigation}) => {
         tx.executeSql(
           'SELECT client_url FROM ApiResponse ORDER BY id DESC LIMIT 1',
           [],
-          (_, {rows}) => {
+          (_, { rows }) => {
             const url = rows.item(0)?.client_url || '';
             setClientUrl(url);
             resolve();
@@ -317,7 +342,7 @@ const InOut = ({navigation}) => {
     }
   };
 
-  const renderItem = ({item}) => {
+  const renderItem = ({ item }) => {
     console.log('item', item);
     let color = '';
     if (item.Name === 'Paid Leave') {
@@ -375,7 +400,7 @@ const InOut = ({navigation}) => {
           source={{
             uri: url,
           }}
-          style={{flex: 1}}
+          style={{ flex: 1 }}
         />
         {/* <ScrollView
           contentContainerStyle={styles.scrollViewContent}
@@ -498,6 +523,9 @@ const InOut = ({navigation}) => {
         </View>
         {/* </ScrollView> */}
       </KeyboardAvoidingView>
+
+
+
     </SafeAreaView>
   );
 };
@@ -507,8 +535,9 @@ export default InOut;
 const styles = StyleSheet.create({
   loadingContainer: {
     flex: 1,
-    // justifyContent: 'center',
-    // alignItems: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'transparent',
   },
   container: {
     flex: 1,
@@ -541,7 +570,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderLeftWidth: 3,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 2,
     elevation: 2,
