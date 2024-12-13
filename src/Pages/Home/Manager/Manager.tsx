@@ -470,7 +470,7 @@ const Manager = ({ navigation }) => {
                   color: BLACK,
                   fontSize: 22,
                   fontFamily: 'Poppins-Bold',
-                  paddingTop: 15,
+                  paddingTop: 10,
                 }}>
                 Summary
               </Text>
@@ -1055,7 +1055,7 @@ const styles = StyleSheet.create({
     width: WIDTH * 0.99,
     height: HEIGHT * 0.18,
     elevation: HEIGHT * 0.01,
-    paddingTop: 5,
+    // paddingTop: 5,
     paddingLeft: 10,
     alignSelf: 'center',
     alignItems: 'center',
@@ -1068,15 +1068,16 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.5,
     shadowRadius: 50,
+    flex:1
   },
   tabContainer: {
-    flex: 1,
+    // flex: 1,
     width: '100%',
     position: 'absolute',
     marginTop: HEIGHT * 0.08,
   },
   screenContainer: {
-    flex: 1,
+    // flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
