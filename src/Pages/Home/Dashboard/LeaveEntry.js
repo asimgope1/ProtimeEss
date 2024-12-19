@@ -227,318 +227,314 @@ const Leave = () => {
         contentContainerStyle={{
           flexGrow: 1,
           backgroundColor: WHITE,
-          padding:20,
-          alignItems:'center'
-
-          
+          padding: 20,
+          alignItems: 'center',
         }}>
         {/* <View style={styles.container}> */}
-          <View style={styles.checklistContainer}>
-            <CheckBox
-              title="Full Day"
-              checked={fullDay}
-              onPress={() => {
-                setFullDay(true);
-                setHalfDay(false);
-                leaveList(Id);
-              }}
-            />
-            <CheckBox
-              title="Half Day"
-              checked={halfDay}
-              onPress={() => {
-                setFullDay(false);
-                setHalfDay(true);
-                leaveList(Id);
-              }}
-            />
-          </View>
-          <View
+        <View style={styles.checklistContainer}>
+          <CheckBox
+            title="Full Day"
+            checked={fullDay}
+            onPress={() => {
+              setFullDay(true);
+              setHalfDay(false);
+              leaveList(Id);
+            }}
+          />
+          <CheckBox
+            title="Half Day"
+            checked={halfDay}
+            onPress={() => {
+              setFullDay(false);
+              setHalfDay(true);
+              leaveList(Id);
+            }}
+          />
+        </View>
+        <View
+          style={{
+            width: WIDTH * 0.9,
+            height: HEIGHT * 0.038,
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            marginTop: 5,
+          }}>
+          <Text
             style={{
-              width: WIDTH * 0.9,
-              height: HEIGHT * 0.038,
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              marginTop: 5,
+              color: BLACK,
+              fontSize: 14,
+              marginBottom: 10,
+              fontFamily: 'Poppins-Bold',
+            }}>
+            Select Date
+          </Text>
+          <Text style={{color: ORANGE, fontSize: 17, marginBottom: 10}}>
+            {/* total number of date calculated from from and to date  */}
+            {Math.max(moment(toDate).diff(moment(fromDate), 'days') + 1, 0) *
+              (fullDay ? 1 : halfDay ? 0.5 : 1)}{' '}
+            Days
+          </Text>
+        </View>
+
+        <View
+          style={{
+            width: WIDTH * 0.95,
+            height: HEIGHT * 0.1,
+            borderColor: '#ccc',
+            borderWidth: 1,
+            marginBottom: 10,
+            alignSelf: 'center',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexDirection: 'row',
+            padding: 10,
+            paddingTop: 25,
+          }}>
+          <TouchableOpacity
+            onPress={() => {
+              leaveList(Id);
+              setShowFromDatePicker(true);
+            }}
+            style={{
+              width: '45%',
+              height: HEIGHT * 0.1,
             }}>
             <Text
               style={{
-                color: BLACK,
-                fontSize: 14,
-                marginBottom: 10,
-                fontFamily: 'Poppins-Bold',
+                color: GRAY,
               }}>
-              Select Date
+              From
             </Text>
-            <Text style={{color: ORANGE, fontSize: 17, marginBottom: 10}}>
-              {/* total number of date calculated from from and to date  */}
-              {Math.max(moment(toDate).diff(moment(fromDate), 'days') + 1, 0) *
-                (fullDay ? 1 : halfDay ? 0.5 : 1)}{' '}
-              Days
-            </Text>
-          </View>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}>
+              <Text style={styles.dateText}>{fromDate.toDateString()}</Text>
 
-          <View
+              <Icon name="calendar-today" size={HEIGHT * 0.03} />
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              leaveList(Id);
+              setShowToDatePicker(true);
+            }}
             style={{
-              width: WIDTH * 0.95,
+              width: '45%',
               height: HEIGHT * 0.1,
-              borderColor: '#ccc',
-              borderWidth: 1,
-              marginBottom: 10,
-              alignSelf: 'center',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              flexDirection: 'row',
-              padding: 10,
-              paddingTop: 25,
             }}>
-            <TouchableOpacity
-              onPress={() => {
-                leaveList(Id);
-                setShowFromDatePicker(true);
-              }}
+            <Text
               style={{
-                width: '45%',
-                height: HEIGHT * 0.1,
+                color: GRAY,
               }}>
-              <Text
-                style={{
-                  color: GRAY,
-                }}>
-                From
-              </Text>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                }}>
-                <Text style={styles.dateText}>{fromDate.toDateString()}</Text>
-
-                <Icon name="calendar-today" size={HEIGHT * 0.03} />
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => {
-                leaveList(Id);
-                setShowToDatePicker(true);
-              }}
+              To
+            </Text>
+            <View
               style={{
-                width: '45%',
-                height: HEIGHT * 0.1,
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
               }}>
-              <Text
-                style={{
-                  color: GRAY,
-                }}>
-                To
-              </Text>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                }}>
-                <Text style={styles.dateText}>{toDate.toDateString()}</Text>
+              <Text style={styles.dateText}>{toDate.toDateString()}</Text>
 
-                <Icon name="calendar-today" size={HEIGHT * 0.03} />
-              </View>
-            </TouchableOpacity>
-          </View>
-          {/* <TouchableOpacity onPress={() => setShowFromDatePicker(true)}>
+              <Icon name="calendar-today" size={HEIGHT * 0.03} />
+            </View>
+          </TouchableOpacity>
+        </View>
+        {/* <TouchableOpacity onPress={() => setShowFromDatePicker(true)}>
         <Text style={styles.dateText}>
           From Date: {fromDate.toDateString()}
         </Text>
       </TouchableOpacity> */}
-          {showFromDatePicker && (
-            <DateTimePicker
-              value={fromDate}
-              mode="date"
-              display="default"
-              onChange={(event, selectedDate) => {
-                setShowFromDatePicker(false);
-                if (selectedDate) {
-                  setFromDate(selectedDate);
-                }
-              }}
-            />
-          )}
-          {/* <TouchableOpacity onPress={() => setShowToDatePicker(true)}>
+        {showFromDatePicker && (
+          <DateTimePicker
+            value={fromDate}
+            mode="date"
+            display="default"
+            onChange={(event, selectedDate) => {
+              setShowFromDatePicker(false);
+              if (selectedDate) {
+                setFromDate(selectedDate);
+              }
+            }}
+          />
+        )}
+        {/* <TouchableOpacity onPress={() => setShowToDatePicker(true)}>
         <Text style={styles.dateText}>To Date: {toDate.toDateString()}</Text>
       </TouchableOpacity> */}
-          {showToDatePicker && (
-            <DateTimePicker
-              value={toDate}
-              mode="date"
-              display="default"
-              onChange={(event, selectedDate) => {
-                setShowToDatePicker(false);
-                if (selectedDate) {
-                  setToDate(selectedDate);
-                }
-              }}
+        {showToDatePicker && (
+          <DateTimePicker
+            value={toDate}
+            mode="date"
+            display="default"
+            onChange={(event, selectedDate) => {
+              setShowToDatePicker(false);
+              if (selectedDate) {
+                setToDate(selectedDate);
+              }
+            }}
+          />
+        )}
+
+        <View>
+          <View
+            style={{
+              width: WIDTH * 0.95,
+              height: HEIGHT * 0.038,
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              // marginTop: 5,
+            }}>
+            <Text
+              style={{
+                color: BLACK,
+                fontSize: 14,
+                marginBottom: 10,
+                fontFamily: 'Poppins-Bold',
+              }}>
+              Leave Type
+            </Text>
+            <Text
+              style={{
+                color: 'blue',
+                fontSize: 14,
+                marginBottom: 10,
+                fontFamily: 'Poppins-Bold',
+              }}>
+              Balance: {balance} days
+            </Text>
+          </View>
+          {loading ? (
+            <ActivityIndicator
+              size="large"
+              color="red"
+              style={{marginTop: 10}}
             />
+          ) : (
+            <Picker
+              selectedValue={leaveType}
+              dropdownIconColor={BLACK}
+              style={styles.picker}
+              onValueChange={LeaveSelected}>
+              <Picker.Item label="Select leave type" value="" />
+              {leaveTypes.map((item, index) => (
+                <Picker.Item
+                  key={index}
+                  label={item.label}
+                  value={item.value}
+                />
+              ))}
+            </Picker>
           )}
+        </View>
 
-          <View>
-            <View
-              style={{
-                width: WIDTH * 0.95,
-                height: HEIGHT * 0.038,
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                // marginTop: 5,
-              }}>
-              <Text
-                style={{
-                  color: BLACK,
-                  fontSize: 14,
-                  marginBottom: 10,
-                  fontFamily: 'Poppins-Bold',
-                }}>
-                Leave Type
-              </Text>
-              <Text
-                style={{
-                  color: 'blue',
-                  fontSize: 14,
-                  marginBottom: 10,
-                  fontFamily: 'Poppins-Bold',
-                }}>
-                Balance: {balance} days
-              </Text>
-            </View>
-            {loading ? (
-              <ActivityIndicator
-                size="large"
-                color="red"
-                style={{marginTop: 10}}
-              />
-            ) : (
-              <Picker
-                selectedValue={leaveType}
-                dropdownIconColor={BLACK}
-                style={styles.picker}
-                onValueChange={LeaveSelected}>
-                <Picker.Item label="Select leave type" value="" />
-                {leaveTypes.map((item, index) => (
-                  <Picker.Item
-                    key={index}
-                    label={item.label}
-                    value={item.value}
-                  />
-                ))}
-              </Picker>
-            )}
-          </View>
-
-          <View
+        <View
+          style={{
+            width: WIDTH * 0.95,
+            height: HEIGHT * 0.038,
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            // marginTop: 5,
+          }}>
+          <Text
             style={{
-              width: WIDTH * 0.95,
-              height: HEIGHT * 0.038,
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              // marginTop: 5,
-            }}>
-            <Text
-              style={{
-                color: BLACK,
-                fontSize: 14,
-                marginBottom: 10,
-                fontFamily: 'Poppins-Bold',
-              }}>
-              Enter Your Reason
-            </Text>
-          </View>
-
-          <TextInput
-            style={styles.input}
-            placeholder="Enter Reason"
-            placeholderTextColor="#888"
-            value={reason}
-            onChangeText={text => setReason(text)}
-            multiline={true}
-          />
-          <View
-            style={{
-              width: WIDTH * 0.95,
-              height: HEIGHT * 0.038,
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              // marginTop: 5,
-            }}>
-            <Text
-              style={{
-                color: BLACK,
-                fontSize: 14,
-                marginBottom: 10,
-                fontFamily: 'Poppins-Bold',
-              }}>
-              Enter Your Contact
-            </Text>
-          </View>
-          <TextInput
-            style={{
-              color: 'black',
-              width: WIDTH * 0.95,
-              height: HEIGHT * 0.06,
-              borderColor: '#ccc',
-              borderWidth: 1,
-              marginBottom: 15,
-              paddingHorizontal: 20,
+              color: BLACK,
               fontSize: 14,
-              backgroundColor: '#f9f9f9',
-            }}
-            placeholder="Enter Emergency Contact"
-            placeholderTextColor="#888"
-            value={contact}
-            onChangeText={text => setContact(text)}
-            maxLength={12}
-          />
-          <View
-            style={{
-              width: WIDTH * 0.95,
-              height: HEIGHT * 0.038,
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              // marginTop: 5,
+              marginBottom: 10,
+              fontFamily: 'Poppins-Bold',
             }}>
-            <Text
-              style={{
-                color: BLACK,
-                fontSize: 14,
-                marginBottom: 10,
-                fontFamily: 'Poppins-Bold',
-              }}>
-              Enter Your Email
-            </Text>
-          </View>
-          <TextInput
-            style={{
-              color: 'black',
-              width: WIDTH * 0.95,
-              height: HEIGHT * 0.06,
-              borderColor: '#ccc',
-              borderWidth: 1,
-              marginBottom: 15,
-              paddingHorizontal: 20,
-              fontSize: 14,
-              backgroundColor: '#f9f9f9',
-            }}
-            placeholder="Enter Emergency Email-Id"
-            placeholderTextColor="#888"
-            value={email}
-            onChangeText={text => setEmail(text)}
-            multiline={true}
-          />
+            Enter Your Reason
+          </Text>
+        </View>
 
-          <TouchableOpacity style={styles.button} onPress={handleApplyLeave}>
-            <LinearGradient
-              colors={['#b4000a', '#ff6347']}
-              style={styles.button}>
-              <Text style={styles.buttonText}>Apply</Text>
-            </LinearGradient>
-          </TouchableOpacity>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter Reason"
+          placeholderTextColor="#888"
+          value={reason}
+          onChangeText={text => setReason(text)}
+          multiline={true}
+        />
+        <View
+          style={{
+            width: WIDTH * 0.95,
+            height: HEIGHT * 0.038,
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            // marginTop: 5,
+          }}>
+          <Text
+            style={{
+              color: BLACK,
+              fontSize: 14,
+              marginBottom: 10,
+              fontFamily: 'Poppins-Bold',
+            }}>
+            Enter Your Contact
+          </Text>
+        </View>
+        <TextInput
+          style={{
+            color: 'black',
+            width: WIDTH * 0.95,
+            height: HEIGHT * 0.06,
+            borderColor: '#ccc',
+            borderWidth: 1,
+            marginBottom: 15,
+            paddingHorizontal: 20,
+            fontSize: 14,
+            backgroundColor: '#f9f9f9',
+          }}
+          placeholder="Enter Emergency Contact"
+          placeholderTextColor="#888"
+          value={contact}
+          onChangeText={text => setContact(text)}
+          maxLength={12}
+        />
+        <View
+          style={{
+            width: WIDTH * 0.95,
+            height: HEIGHT * 0.038,
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            // marginTop: 5,
+          }}>
+          <Text
+            style={{
+              color: BLACK,
+              fontSize: 14,
+              marginBottom: 10,
+              fontFamily: 'Poppins-Bold',
+            }}>
+            Enter Your Email
+          </Text>
+        </View>
+        <TextInput
+          style={{
+            color: 'black',
+            width: WIDTH * 0.95,
+            height: HEIGHT * 0.06,
+            borderColor: '#ccc',
+            borderWidth: 1,
+            marginBottom: 15,
+            paddingHorizontal: 20,
+            fontSize: 14,
+            backgroundColor: '#f9f9f9',
+          }}
+          placeholder="Enter Emergency Email-Id"
+          placeholderTextColor="#888"
+          value={email}
+          onChangeText={text => setEmail(text)}
+          multiline={true}
+        />
+
+        <TouchableOpacity style={styles.button} onPress={handleApplyLeave}>
+          <LinearGradient colors={['#b4000a', '#ff6347']} style={styles.button}>
+            <Text style={styles.buttonText}>Apply</Text>
+          </LinearGradient>
+        </TouchableOpacity>
         {/* </View> */}
       </ScrollView>
     </KeyboardAvoidingView>

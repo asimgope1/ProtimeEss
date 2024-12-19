@@ -33,9 +33,9 @@ const ClientVisit = ({navigation}) => {
   const [fromDate, setFromDate] = useState(new Date());
   const [toDate, setToDate] = useState(new Date());
   const [showFromDatePicker, setShowFromDatePicker] = useState(false);
-  const [showToDatePicker, setShowToDatePicker] = useState(false);
-  const [showToTimePicker, setShowToTimePicker] = useState(false);
-  const [toTime, setToTime] = useState(new Date());
+  // const [showToDatePicker, setShowToDatePicker] = useState(false);
+  // const [showToTimePicker, setShowToTimePicker] = useState(false);
+  // const [toTime, setToTime] = useState(new Date());
   const [open, setOpen] = useState(false); // Controls dropdown visibility
   const [value, setValue] = useState(null); // Holds the selected value
   const [items, setItems] = useState([
@@ -392,6 +392,8 @@ const styles = StyleSheet.create({
   flex: {
     flex: 1,
   },
+
+
   scrollViewContent: {
     flexGrow: 1,
   },
