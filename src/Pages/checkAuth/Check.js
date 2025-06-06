@@ -57,6 +57,17 @@ const Check = ({navigation}) => {
     };
   });
 
+  // useEffect(() => {
+  //   fetch('http://protimes.co.in/ptadmin/api/validcode', {
+  //     method: 'POST',
+  //     headers: {'Content-Type': 'application/json'},
+  //     body: JSON.stringify({compcode: 'PTSMC001'}),
+  //   })
+  //     .then(res => res.json())
+  //     .then(json => console.log('Response:', json))
+  //     .catch(err => console.error('Fetch Error:', err));
+  // }, []);
+
   useEffect(() => {
     fetchClientUrlFromSQLite();
     headerCardHeight.value = withTiming(HEIGHT * 0.5, {duration: 1500});
@@ -112,75 +123,79 @@ const Check = ({navigation}) => {
   };
 
   const handleLogin = async () => {
-    setLoading(true);
-    const myHeaders = new Headers();
-    myHeaders.append('Content-Type', 'application/json');
+    try {
+      console.log('Entered Code:', code);
+      setLoading(true);
 
-    const raw = JSON.stringify({
-      compcode: code,
+      const response = await fetch(
+        'https://protimes.co.in/ptadmin/api/validcode',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({compcode: code}),
+        },
+      );
+
+      const result = await response.json();
+      setLoading(false);
+
+      if (result.status === 'success' && result.data_value?.length > 0) {
+        const clientUrl = result.data_value[0]?.client_url;
+        saveClientUrlToDB(clientUrl);
+      } else {
+        Alert.alert(
+          'Invalid Code',
+          result.msg || 'No data returned from API',
+          [{text: 'OK'}],
+          {cancelable: false},
+        );
+        console.error('Unexpected API result:', result);
+      }
+    } catch (error) {
+      setLoading(false);
+      console.error('API failed, using default URL. Error:', error);
+
+      const fallbackUrl = 'http://103.180.254.22:8081/adminapi/';
+      saveClientUrlToDB(fallbackUrl);
+
+      Alert.alert('Success', 'configuration set sucessfully', [
+        {text: 'Continue'},
+      ]);
+    }
+  };
+
+  const saveClientUrlToDB = (clientUrl: string) => {
+    const db = SQLitePlugin.openDatabase(
+      {name: 'test.db', location: 'default'},
+      () => console.log('Database opened'),
+      error => console.error('DB open error:', error),
+    );
+
+    db.transaction(tx => {
+      tx.executeSql(
+        `CREATE TABLE IF NOT EXISTS ApiResponse (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          client_url TEXT
+        );`,
+        [],
+        () => console.log('Table ensured'),
+        error => console.error('Table creation error:', error),
+      );
     });
 
-    const requestOptions = {
-      method: 'POST',
-      headers: myHeaders,
-      body: raw,
-      redirect: 'follow',
-    };
-
-    await fetch('https://protimes.co.in/ptadmin/api/validcode', requestOptions)
-      .then(response => response.json())
-      .then(result => {
-        setLoading(false);
-        if (result.status === 'success' && result.data_value.length > 0) {
-          const clientUrl = result.data_value[0].client_url;
-
-          // Open SQLite database
-          const db = SQLitePlugin.openDatabase({
-            name: 'test.db',
-            version: '1.0',
-            description: '',
-            size: 1,
-          });
-
-          // Create table if not exists
-          db.transaction(tx => {
-            tx.executeSql(
-              'CREATE TABLE IF NOT EXISTS ApiResponse(id INTEGER PRIMARY KEY AUTOINCREMENT, client_url TEXT)',
-              [],
-              () => console.log('Table created successfully'),
-              error => console.error('Error creating table:', error),
-            );
-          });
-
-          // Insert client_url into database
-          db.transaction(tx => {
-            tx.executeSql(
-              'INSERT INTO ApiResponse (client_url) VALUES (?)',
-              [clientUrl],
-              () => {
-                console.log('client_url saved to database:', clientUrl);
-                // Navigate to Login screen after saving the URL
-                navigation.navigate('Login');
-                // storeObjByKey('loginResponse', result);
-                // dispatch(checkuserToken(true));
-              },
-              error =>
-                console.error('Error saving client_url to database:', error),
-            );
-          });
-        } else {
-          Alert.alert(
-            'Invalid Code',
-            result.msg,
-            [{text: 'OK', onPress: () => console.log('OK Pressed')}],
-            {cancelable: false},
-          );
-          console.error('Invalid response from API:', result);
-        }
-      })
-      .catch(error => {
-        console.error('Error making API call:', error);
-      });
+    db.transaction(tx => {
+      tx.executeSql(
+        'INSERT INTO ApiResponse (client_url) VALUES (?)',
+        [clientUrl],
+        () => {
+          console.log('client_url saved to DB:', clientUrl);
+          navigation.navigate('Login');
+        },
+        error => console.error('Insert error:', error),
+      );
+    });
   };
 
   return (
