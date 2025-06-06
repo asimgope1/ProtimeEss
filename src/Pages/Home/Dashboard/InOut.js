@@ -26,7 +26,7 @@ import WebView from 'react-native-webview';
 import { useFocusEffect } from '@react-navigation/native';
 import { launchCamera } from 'react-native-image-picker';
 import RNFS from 'react-native-fs';
-
+import ImageResizer from '@bam.tech/react-native-image-resizer';
 const InOut = ({ navigation }) => {
   const [clientUrl, setClientUrl] = useState('');
   const [Id, setID] = useState();
@@ -58,11 +58,12 @@ const InOut = ({ navigation }) => {
       const location = await getObjByKey('location');
       if (location) {
         console.log('loc', location);
-        setLatitude(location.latitude);
-        setLongitude(location.longitude);
-        setCity(location.city);
+        setLatitude(location?.latitude);
+        setLongitude(location?.longitude);
+        getLocation(location?.latitude, location?.longitude);
+        // setCity(location.city);
         setUrl(
-          `https://www.google.com/maps/@${location.latitude},${location.longitude},17z?entry=ttu`,
+          `https://www.google.com/maps/@${location?.latitude},${location?.longitude},17z?entry=ttu`,
         );
       }
     };
@@ -71,6 +72,7 @@ const InOut = ({ navigation }) => {
   }, []);
 
   const handleApplyLeave = base64 => {
+    console.log('cityyy',city)
 
     setLoading(true);
     // Check if Latitude and Longitude are valid
@@ -92,9 +94,9 @@ const InOut = ({ navigation }) => {
         .reverse()
         .join('/'),
       log_time: currentDateTime.toLocaleTimeString('en-GB', {}),
-      log_longitude: Longitude,
-      log_lattitude: Latitude,
-      log_location: city,
+      log_longitude: Longitude || 0.0,
+      log_lattitude: Latitude || 0.0,
+      log_location: city || '',
       log_note: note,
       log_img: base64,
       log_status: 'P',
@@ -109,6 +111,8 @@ const InOut = ({ navigation }) => {
       body: raw,
       redirect: 'follow',
     };
+
+    console.log('clientUrl',clientUrl)
 
     fetch(`${clientUrl}api/manualposting`, requestOptions)
       .then(response => response.json())
@@ -134,26 +138,54 @@ const InOut = ({ navigation }) => {
       .catch(error => console.error(error));
   };
 
+  
 
-  const pickImage = () => {
-    launchCamera({ mediaType: 'photo' }, response => {
-      if (response.assets && response.assets.length > 0) {
-        const image = response.assets[0];
-        setImage(image.uri);
-        convertToBase64(image.uri);
-      }
-    });
-  };
+  
+const pickImage = () => {
+  launchCamera({mediaType: 'photo'}, response => {
+    if (response?.assets && response?.assets.length > 0) {
+      const image = response.assets[0];
+      const fileUri = image.uri;
 
-  const convertToBase64 = async uri => {
-    try {
-      const base64 = await RNFS.readFile(uri, 'base64');
-      setBase64String(base64);
-      handleApplyLeave(base64);
-    } catch (error) {
-      console.error('Error converting image to Base64:', error);
+      // Resize the image before converting to Base64
+      resizeImage(fileUri);
     }
-  };
+  });
+};
+
+const resizeImage = async (uri) => {
+  try {
+    // Resize image to 200x200, with quality set to 10%
+    const resizedImage = await ImageResizer.createResizedImage(
+      uri,            // path of the original image
+      150,            // max width
+      150,            // max height
+      'JPEG',         // format
+      30,             // quality (10%)
+      0,              // rotation (0 degrees)
+      undefined       // output path (undefined saves in cache)
+    );
+
+    console.log('Resized Image:', resizedImage);
+
+    // Convert resized image to Base64
+    convertToBase64(resizedImage.uri);
+  } catch (error) {
+    console.error('Error resizing image:', error);
+  }
+};
+
+const convertToBase64 = async (uri) => {
+  try {
+    const base64 = await RNFS.readFile(uri, 'base64');
+    console.log('Base64 String:', base64);
+
+    // Handle the Base64 string (e.g., send to API or save it)
+    handleApplyLeave(base64);
+  } catch (error) {
+    console.error('Error converting to Base64:', error);
+  }
+};
 
   const leaveList = async loc => {
     setLoading(true);
@@ -261,6 +293,34 @@ const InOut = ({ navigation }) => {
       });
     });
   };
+
+const getLocation=(lat,lon)=>{
+    
+const myHeaders = new Headers();
+myHeaders.append("x-rapidapi-key", "d100064090mshded7e7dc89eb2cfp1378c1jsn0ffeb541556f");
+myHeaders.append("x-rapidapi-host", "forward-reverse-geocoding-by-googlemap-api.p.rapidapi.com");
+
+const mainUrl="https://forward-reverse-geocoding-by-googlemap-api.p.rapidapi.com/api/revert";
+const paramUrl=`${mainUrl}?lat=${lat}&lon=${lon}`
+const requestOptions = {
+  method: "GET",
+  headers: myHeaders,
+  redirect: "follow"
+};
+
+// fetch("https://forward-reverse-geocoding-by-googlemap-api.p.rapidapi.com/api/revert?lon=85.82191166666668&lat= 20.32376833333333", requestOptions)
+
+
+ fetch(paramUrl, requestOptions)
+  .then((response) => response.json())
+  .then((result) => {
+    
+    console.log('locateeeeeeeeeeeeeeeeeeee=============',result)
+    console.log(result?.data.address +" , "+result?.data.province)
+    setCity(result?.data.address +" "+result?.data.province)
+  })
+  .catch((error) => console.error(error));
+  }
 
   const RetrieveDetails = async () => {
     try {
@@ -513,6 +573,7 @@ const InOut = ({ navigation }) => {
             style={styles.button}
             onPress={() => {
               pickImage();
+            
             }}>
             <LinearGradient
               colors={['#b4000a', '#ff6347']}

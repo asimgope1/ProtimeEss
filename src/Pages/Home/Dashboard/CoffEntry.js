@@ -135,6 +135,11 @@ const CoffEntry = ({navigation}) => {
       .then(result => {
         if (result.Code === '200') {
           alert(result.msg);
+          // clear all the states
+          setLeaveType('');
+          setReason('');
+          setContact('');
+          setEmail('');
         }
         console.log('applyyy', result);
       })

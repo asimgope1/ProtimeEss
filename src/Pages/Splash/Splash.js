@@ -38,10 +38,8 @@ const Splash = ({ navigation }) => {
         const coarseLocationPermission = await PermissionsAndroid.check(
           PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
         );
-        const backgroundLocationPermission = await PermissionsAndroid.check(
-          PermissionsAndroid.PERMISSIONS.ACCESS_BACKGROUND_LOCATION,
-        );
-        if (locationPermission && coarseLocationPermission && backgroundLocationPermission) {
+       
+        if (locationPermission && coarseLocationPermission ) {
           return true; // All permissions are granted
         } else {
           return false; // Some permissions are missing
@@ -73,14 +71,11 @@ const Splash = ({ navigation }) => {
         const coarseLocationGranted = await PermissionsAndroid.request(
           PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
         );
-        const backgroundLocationGranted = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.ACCESS_BACKGROUND_LOCATION,
-        );
+        
 
         if (
           locationGranted === PermissionsAndroid.RESULTS.GRANTED &&
-          coarseLocationGranted === PermissionsAndroid.RESULTS.GRANTED &&
-          backgroundLocationGranted === PermissionsAndroid.RESULTS.GRANTED
+          coarseLocationGranted === PermissionsAndroid.RESULTS.GRANTED
         ) {
           console.log('All permissions granted');
           getCurrentLocation();
@@ -119,11 +114,11 @@ const Splash = ({ navigation }) => {
           }
           reject(error);
         },
-        {
-          enableHighAccuracy: true,
-          timeout: 15000,
-          maximumAge: 10000,
-        },
+        // {
+        //   enableHighAccuracy: true,
+        //   timeout: 15000,
+        //   maximumAge: 10000,
+        // },
       );
     });
   };
@@ -241,11 +236,11 @@ const Splash = ({ navigation }) => {
               padding: 20,
               alignItems: 'center',
             }}>
-            <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 10 }}>
+            <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 10 , color:'black'}}>
               Location Permission
             </Text>
             <Text style={{ textAlign: 'center', marginBottom: 20, color: BLACK, fontSize: 16 }}>
-              This app needs access to your location, including in the background, to provide location-based services.
+              This app needs access to your location, to provide location-based services.
             </Text>
             <TouchableOpacity
               style={{

@@ -382,6 +382,20 @@ const OD = ({}) => {
       .then(response => response.json())
       .then(result => {
         console.log('out', result);
+        if (result.Code === '200') {
+          alert(result.msg);
+          setFromDate(new Date())
+          setToDate(new Date())
+          setFromTime(new Date())
+          setToTime(new Date())
+          setReason('')
+          setBoth(false)
+          setIn(false)
+          setOut(false)
+
+
+
+        }
       })
       .catch(error => console.error(error));
   };
