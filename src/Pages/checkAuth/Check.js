@@ -27,11 +27,13 @@ import SQLitePlugin from 'react-native-sqlite-2';
 import {checkuserToken} from '../../redux/actions/auth';
 import {useDispatch} from 'react-redux';
 import {storeObjByKey} from '../../utils/Storage';
+import {Loader} from '../../components/Loader';
 
 const Check = ({navigation}) => {
   const [code, setCode] = useState('');
   const [backPressed, setBackPressed] = useState(0);
   const [loading, setLoading] = useState(false);
+  // const [loader, setLoader] = useState(false);
 
   const headerCardHeight = useSharedValue(0);
   const loginContainerTranslateY = useSharedValue(HEIGHT);
@@ -195,6 +197,7 @@ const Check = ({navigation}) => {
         style={{flex: 1}}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <ScrollView contentContainerStyle={{flexGrow: 1}}>
+          <Loader visible={loading} />
           <Animated.View
             style={[
               {

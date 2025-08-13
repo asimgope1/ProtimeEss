@@ -10,8 +10,7 @@ import {
   ScrollView,
   TextInput,
   TouchableOpacity,
-  BackHandler,
-  Alert,
+  Platform,
 } from 'react-native';
 import {getObjByKey} from '../../../utils/Storage';
 import SQLitePlugin from 'react-native-sqlite-2';
@@ -20,30 +19,42 @@ import {BLACK, GRAY, RED, WHITE} from '../../../constants/color';
 import Header from '../../../components/Header';
 import {CheckBox, Icon} from '@rneui/themed';
 import {Picker} from '@react-native-picker/picker';
-import {green} from 'react-native-reanimated/lib/typescript/reanimated2/Colors';
-import LinearGradient from 'react-native-linear-gradient';
-import WebView from 'react-native-webview';
-import {useFocusEffect} from '@react-navigation/native';
 import {launchCamera} from 'react-native-image-picker';
 import RNFS from 'react-native-fs';
+import ImageResizer from 'react-native-image-resizer';
 
-const InOut = ({navigation}) => {
+import LinearGradient from 'react-native-linear-gradient';
+import {Loader} from '../../../components/Loader';
+
+const IN_OUT2 = ({navigation}) => {
   const [clientUrl, setClientUrl] = useState('');
   const [Id, setID] = useState();
   const [Sl, setSl] = useState();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [Balance, setBalance] = useState([]);
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
   const [leaveTypes, setLeaveTypes] = useState([]);
   const [leaveType, setLeaveType] = useState('');
   const [status, setstatus] = useState('');
   const [url, setUrl] = useState('');
-  const [Latitude, setLatitude] = useState('');
-  const [Longitude, setLongitude] = useState('');
-  const [city, setCity] = useState('');
   const [note, setNote] = useState('');
   const [image, setImage] = useState(null);
   const [base64String, setBase64String] = useState('');
+
+  // SQLite DB initialization
+  const db = SQLitePlugin.openDatabase({
+    name: 'test.db',
+    version: '1.0',
+    description: '',
+    size: 1,
+  });
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentDateTime(new Date());
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -53,117 +64,87 @@ const InOut = ({navigation}) => {
     return () => clearTimeout(timeoutId); // Cleanup
   }, [Id]);
 
-  useEffect(() => {
-    const fetchLocation = async () => {
-      const location = await getObjByKey('location');
-      if (location) {
-        console.log('loc', location);
-        setLatitude(location.latitude);
-        setLongitude(location.longitude);
-        setCity(location.city);
-        setUrl(
-          `https://www.google.com/maps/@${location.latitude},${location.longitude},17z?entry=ttu`,
-        );
-      }
-    };
-
-    fetchLocation();
-  }, []);
-
-  const handleApplyLeave = base64 => {
-    setLoading(true);
-    // Check if Latitude and Longitude are valid
-    if (!Latitude || !Longitude) {
-      alert(
-        'Location data is missing. Please ensure your GPS is enabled and try again.',
-      );
-      return; // Exit the function if validation fails
-    }
-
-    const myHeaders = new Headers();
-    myHeaders.append('Content-Type', 'application/json');
-
-    const raw = JSON.stringify({
-      loc_cd: Id,
-      staf_sl: Sl,
-      div_sl: leaveType,
-      log_dt: currentDateTime
-        .toLocaleDateString('en-GB')
-        .split('/')
-        .reverse()
-        .join('/'),
-      log_time: currentDateTime.toLocaleTimeString('en-GB', {}),
-      log_longitude: Longitude,
-      log_lattitude: Latitude,
-      log_location: city,
-      log_note: note,
-      log_img: base64,
-      log_status: 'P',
-      post_type: status,
-    });
-
-    console.log('raw', raw);
-
-    const requestOptions = {
-      method: 'POST',
-      headers: myHeaders,
-      body: raw,
-      redirect: 'follow',
-    };
-
-    fetch(`${clientUrl}api/manualposting`, requestOptions)
-      .then(response => response.json())
-      .then(result => {
-        console.log('reddddd', result);
-        if (result.Code === '200') {
-          setLoading(false);
-
-          // clear all state
-          setLeaveType('');
-          setstatus('');
-          setNote('');
-          setImage(null);
-          alert(result.msg);
-        }
-        console.log('applyyy', result);
-        setLeaveType('');
-        setstatus('');
-        setNote('');
-        setImage(null);
-        setLoading(false);
-      })
-      .catch(error => console.error(error));
-  };
-
-  const pickImage = () => {
-    launchCamera({mediaType: 'photo'}, response => {
-      if (response.assets && response.assets.length > 0) {
-        const image = response.assets[0];
-        setImage(image.uri);
-        convertToBase64(image.uri);
-      }
-    });
-  };
-
-  const convertToBase64 = async uri => {
+  // Function to initialize the data
+  const initialize = async () => {
     try {
-      const base64 = await RNFS.readFile(uri, 'base64');
-      setBase64String(base64);
-      handleApplyLeave(base64);
+      await fetchClientUrlFromSQLite();
+      await RetrieveDetails();
     } catch (error) {
-      console.error('Error converting image to Base64:', error);
+      console.error('Initialization error:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
+  // Fetch client URL from SQLite
+  const fetchClientUrlFromSQLite = () => {
+    return new Promise((resolve, reject) => {
+      db.transaction(tx => {
+        tx.executeSql(
+          'SELECT client_url FROM ApiResponse ORDER BY id DESC LIMIT 1',
+          [],
+          (_, {rows}) => {
+            const url = rows.item(0)?.client_url || '';
+            setClientUrl(url);
+            resolve();
+          },
+          error => {
+            console.error('Error fetching client_url:', error);
+            reject(error);
+          },
+        );
+      });
+    });
+  };
+
+  // Retrieve login details
+  const RetrieveDetails = async () => {
+    try {
+      const value = await getObjByKey('loginResponse');
+      if (value !== null) {
+        setID(value[0]?.loc_cd);
+        setSl(value[0]?.staf_sl);
+      }
+    } catch (e) {
+      console.error('Error retrieving details:', e);
+    }
+  };
+
+  // Fetch leave balance
+  const fetchLeaveBalance = async (ID, SL) => {
+    try {
+      const myHeaders = new Headers();
+      myHeaders.append('Content-Type', 'application/json');
+      const raw = JSON.stringify({loc_cd: ID, staf_sl: SL});
+
+      const requestOptions = {
+        method: 'POST',
+        headers: myHeaders,
+        body: raw,
+        redirect: 'follow',
+      };
+
+      const response = await fetch(
+        `${clientUrl}api/divisiondisplay`,
+        requestOptions,
+      );
+      const result = await response.json();
+      if (result.Code === '200') {
+        setBalance(result.data_value);
+      }
+    } catch (error) {
+      console.error('Error fetching leave balance:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch leave list
   const leaveList = async loc => {
     setLoading(true);
     const myHeaders = new Headers();
     myHeaders.append('Content-Type', 'application/json');
-
-    const raw = JSON.stringify({
-      loc_cd: Id,
-      staf_sl: Sl,
-    });
+    const raw = JSON.stringify({loc_cd: Id, staf_sl: Sl});
 
     const requestOptions = {
       method: 'POST',
@@ -177,10 +158,8 @@ const InOut = ({navigation}) => {
         `${clientUrl}/api/divisiondisplay`,
         requestOptions,
       );
-
       const result = await response.json();
       setLoading(false);
-      console.log('saf', result.data_value);
       if (result.data_value) {
         const leaveTypesData = result.data_value.map(item => ({
           label: item.div_nm,
@@ -196,6 +175,43 @@ const InOut = ({navigation}) => {
     }
   };
 
+  // Handle image selection and apply leave
+  const pickImage = async () => {
+    await launchCamera({mediaType: 'photo'}, async response => {
+      if (response?.assets && response?.assets?.length > 0) {
+        const image = response.assets[0];
+
+        try {
+          // Resize the image to reduce size
+          const resizedImage = await ImageResizer.createResizedImage(
+            image.uri,
+            400, // Width
+            400, // Height
+            'JPEG', // Format
+            70, // Quality (0-100)
+            0, // Rotation (0 means no rotation)
+          );
+
+          setImage(resizedImage.uri);
+          convertToBase64(resizedImage.uri);
+        } catch (error) {
+          console.log('Error resizing image:', error);
+        }
+      }
+    });
+  };
+
+  const convertToBase64 = async uri => {
+    try {
+      const base64 = await RNFS.readFile(uri, 'base64');
+      setBase64String(base64);
+      handleApplyLeave(base64);
+    } catch (error) {
+      console.error('Error converting image to Base64:', error);
+    }
+  };
+
+  // Leave Selected Handler
   const LeaveSelected = async item => {
     console.log('Selected leave type:', item);
     setLeaveType(item);
@@ -228,62 +244,53 @@ const InOut = ({navigation}) => {
     }
   };
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentDateTime(new Date());
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
+  // Apply leave
+  const handleApplyLeave = async base64 => {
+    console.log('base64-------------------', base64);
+    setLoading(true);
+    const myHeaders = new Headers();
+    myHeaders.append('Content-Type', 'application/json');
 
-  const db = SQLitePlugin.openDatabase({
-    name: 'test.db',
-    version: '1.0',
-    description: '',
-    size: 1,
-  });
-
-  const fetchClientUrlFromSQLite = () => {
-    return new Promise((resolve, reject) => {
-      db.transaction(tx => {
-        tx.executeSql(
-          'SELECT client_url FROM ApiResponse ORDER BY id DESC LIMIT 1',
-          [],
-          (_, {rows}) => {
-            const url = rows.item(0)?.client_url || '';
-            setClientUrl(url);
-            resolve();
-          },
-          error => {
-            console.error('Error fetching client_url:', error);
-            reject(error);
-          },
-        );
-      });
+    const raw = JSON.stringify({
+      loc_cd: Id,
+      staf_sl: Sl,
+      div_sl: leaveType,
+      log_dt: currentDateTime
+        .toLocaleDateString('en-GB')
+        .split('/')
+        .reverse()
+        .join('/'),
+      log_time: currentDateTime.toLocaleTimeString('en-GB'),
+      log_note: note,
+      log_img: base64,
+      log_status: 'P',
+      post_type: status,
     });
-  };
+    console.log('raw', raw);
 
-  const RetrieveDetails = async () => {
-    try {
-      const value = await getObjByKey('loginResponse');
-      if (value !== null) {
-        console.log('value', value);
-        setID(value[0]?.loc_cd);
-        setSl(value[0]?.staf_sl);
-      }
-    } catch (e) {
-      console.error('Error retrieving details:', e);
-    }
-  };
+    const requestOptions = {
+      method: 'POST',
+      headers: myHeaders,
+      body: raw,
+      redirect: 'follow',
+    };
 
-  const initialize = async () => {
-    try {
-      await fetchClientUrlFromSQLite();
-      await RetrieveDetails();
-    } catch (error) {
-      console.error('Initialization error:', error);
-    } finally {
-      setLoading(false);
-    }
+    await fetch(`${clientUrl}api/manualposting`, requestOptions)
+      .then(response => response.json())
+      .then(result => {
+        setLoading(false);
+        console.log('result', result);
+        if (result.Code === '200') {
+          setLeaveType('');
+          setstatus('');
+          setImage(null);
+          alert(result.msg);
+
+          // Clear the note after the API response is processed
+          setNote('');
+        }
+      })
+      .catch(error => console.error(error));
   };
 
   useEffect(() => {
@@ -295,95 +302,6 @@ const InOut = ({navigation}) => {
       fetchLeaveBalance(Id, Sl);
     }
   }, [Id, Sl, clientUrl]);
-
-  const fetchLeaveBalance = async (ID, SL) => {
-    try {
-      const myHeaders = new Headers();
-      myHeaders.append('Content-Type', 'application/json');
-
-      const raw = JSON.stringify({
-        loc_cd: ID,
-        staf_sl: SL,
-      });
-
-      const requestOptions = {
-        method: 'POST',
-        headers: myHeaders,
-        body: raw,
-        redirect: 'follow',
-      };
-
-      const response = await fetch(
-        `${clientUrl}api/divisiondisplay`,
-        requestOptions,
-      );
-      const result = await response.json();
-      if (result.Code === '200') {
-        setBalance(result.data_value);
-      }
-      console.log('balance', result);
-    } catch (error) {
-      console.error('Error fetching leave balance:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const getColorByName = name => {
-    switch (name) {
-      case 'Paid Leave':
-        return styles.paidLeave;
-      case 'Casual Leave':
-        return styles.casualLeave;
-      case 'Sick Leave':
-        return styles.sickLeave;
-      default:
-        return styles.defaultLeave;
-    }
-  };
-
-  const renderItem = ({item}) => {
-    console.log('item', item);
-    let color = '';
-    if (item.Name === 'Paid Leave') {
-      color = 'green';
-    } else if (item.Name === 'Casual Leave') {
-      color = 'orange';
-    } else if (item.Name === 'Sick Leave') {
-      color = 'red';
-    } else {
-      color = 'black';
-    }
-
-    return (
-      <View
-        style={{
-          ...styles.card,
-          borderColor: color,
-        }}>
-        <View style={styles.rightContainer}>
-          <Text style={[styles.nameText, getColorByName(item.Name)]}>
-            {item.Name}
-          </Text>
-        </View>
-        <View style={styles.separator}></View>
-
-        <View style={styles.leftContainer}>
-          <Text style={styles.balanceText}>{item.Balance}</Text>
-        </View>
-      </View>
-    );
-  };
-
-  if (loading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={RED} />
-      </View>
-    );
-  }
-  // console.log('object', currentDateTime);
-
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar
@@ -395,28 +313,16 @@ const InOut = ({navigation}) => {
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-        <Header title="In Out" onBackPress={() => navigation.goBack()} />
-        <WebView
-          source={{
-            uri: url,
-          }}
-          style={{flex: 1}}
-        />
-        {/* <ScrollView
-          contentContainerStyle={styles.scrollViewContent}
-          scrollEnabled={true}> */}
+        <Header title="IN_OUT2" onBackPress={() => navigation.goBack()} />
+        {/* <WebView source={{uri: url}} style={{flex: 1}} /> */}
         <View
           style={{
             width: WIDTH,
             justifyContent: 'center',
             alignItems: 'center',
-            // marginBottom: 20,
             backgroundColor: 'transparent',
           }}>
           <View style={styles.dateTimeContainer}>
-            {/* <Text style={styles.dateText}>
-                {currentDateTime.toLocaleDateString('en-GB')}
-              </Text> */}
             <Text style={styles.timeText}>
               {currentDateTime.toLocaleTimeString('en-GB', {})}
             </Text>
@@ -424,7 +330,6 @@ const InOut = ({navigation}) => {
           <View
             style={{
               width: WIDTH * 0.95,
-              height: HEIGHT * 0.038,
               flexDirection: 'row',
               justifyContent: 'space-between',
               marginTop: 5,
@@ -446,40 +351,26 @@ const InOut = ({navigation}) => {
             onValueChange={LeaveSelected}>
             <Picker.Item label="Select Division type" value="" />
             {leaveTypes.map((item, index) => (
-              // console.log(item),
-
               <Picker.Item key={index} label={item.label} value={item.value} />
             ))}
           </Picker>
 
           <View style={styles.checklistContainer}>
-            <View
-              style={{
-                width: WIDTH,
-                flexDirection: 'row',
-                // justifyContent: 'flex-start',
-                marginTop: 10,
-              }}>
+            <View style={{width: WIDTH, flexDirection: 'row', marginTop: 10}}>
               <CheckBox
                 title="Att.."
                 checked={status === 'Attendance'}
-                onPress={() => {
-                  setstatus('Attendance');
-                }}
+                onPress={() => setstatus('Attendance')}
               />
               <CheckBox
                 title="WFH"
                 checked={status === 'Work from Home'}
-                onPress={() => {
-                  setstatus('Work from Home');
-                }}
+                onPress={() => setstatus('Work from Home')}
               />
               <CheckBox
                 title="Tour"
                 checked={status === 'Tour'}
-                onPress={() => {
-                  setstatus('Tour');
-                }}
+                onPress={() => setstatus('Tour')}
               />
             </View>
             <View
@@ -492,23 +383,19 @@ const InOut = ({navigation}) => {
               <CheckBox
                 title="Outdoor"
                 checked={status === 'Outdoor'}
-                onPress={() => {
-                  setstatus('Outdoor');
-                }}
+                onPress={() => setstatus('Outdoor')}
               />
             </View>
           </View>
 
           <TextInput
             style={styles.textinput}
+            value={note}
             placeholderTextColor={GRAY}
             placeholder="Comments"
             multiline={true}
-            onChangeText={txt => {
-              setNote(txt);
-            }}
-          />
-
+            onChangeText={txt => setNote(txt)}
+          />                                                                                                     1
           <TouchableOpacity
             style={styles.button}
             onPress={() => {
@@ -521,13 +408,13 @@ const InOut = ({navigation}) => {
             </LinearGradient>
           </TouchableOpacity>
         </View>
-        {/* </ScrollView> */}
       </KeyboardAvoidingView>
+      <Loader visible={loading} />
     </SafeAreaView>
   );
 };
 
-export default InOut;
+export default IN_OUT2;
 
 const styles = StyleSheet.create({
   loadingContainer: {
@@ -542,6 +429,7 @@ const styles = StyleSheet.create({
     // alignSelf: 'center',
     // alignItems: 'center',
     width: '100%',
+    justifyContent: 'flex-start',
   },
   scrollViewContent: {
     flexGrow: 1,
@@ -613,7 +501,7 @@ const styles = StyleSheet.create({
   },
   dateTimeContainer: {
     width: WIDTH * 0.6,
-    marginTop: 10,
+    marginTop: 50,
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'center',
@@ -639,6 +527,8 @@ const styles = StyleSheet.create({
   },
   checklistContainer: {
     width: WIDTH,
+    marginTop: 20,
+
     // justifyContent: 'space-around',
     // marginBottom: 20,
     // paddingVertical: 10,
@@ -657,6 +547,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 4,
+    marginTop: 20,
   },
   button: {
     width: WIDTH * 0.8,
@@ -664,6 +555,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     alignItems: 'center',
     justifyContent: 'center',
+    marginTop: 20,
 
     borderRadius: HEIGHT * 0.1,
     marginBottom: 10,

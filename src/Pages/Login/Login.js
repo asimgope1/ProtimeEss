@@ -26,6 +26,7 @@ import {POSTNETWORK} from '../../utils/Network';
 import {storeObjByKey, storeStringByKey} from '../../utils/Storage';
 import {checkuserToken} from '../../redux/actions/auth';
 import {useDispatch} from 'react-redux';
+import {Loader} from '../../components/Loader';
 
 export const {width: WIDTH, height: HEIGHT} = Dimensions.get('window');
 
@@ -195,6 +196,7 @@ const Login = ({navigation}) => {
         style={{flex: 1}}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <ScrollView contentContainerStyle={{flexGrow: 1}}>
+          <Loader visible={loading} />
           <Animated.View
             style={[
               {

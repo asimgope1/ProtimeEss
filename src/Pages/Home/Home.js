@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
   SafeAreaView,
   StatusBar,
@@ -19,9 +19,9 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import LinearGradient from 'react-native-linear-gradient';
-import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
 import moment from 'moment'; // Import moment
-import { HEIGHT, WIDTH } from '../Login/Login';
+import {HEIGHT, WIDTH} from '../Login/Login';
 import {
   BELL,
   ClientVisit,
@@ -50,12 +50,12 @@ import {
   RED,
   WHITE,
 } from '../../constants/color';
-import { Icon } from '@rneui/themed';
-import { clearAll, getObjByKey } from '../../utils/Storage';
-import { checkuserToken } from '../../redux/actions/auth';
-import { useDispatch } from 'react-redux';
+import {Icon} from '@rneui/themed';
+import {clearAll, getObjByKey} from '../../utils/Storage';
+import {checkuserToken} from '../../redux/actions/auth';
+import {useDispatch} from 'react-redux';
 import SQLitePlugin from 'react-native-sqlite-2';
-import { useNavigation } from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 
 // const get = async () => {
 //   let tree = await getObjByKey('loginResponse');
@@ -105,69 +105,75 @@ const Dashboard = () => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
   return (
-    <FlatList
-      numColumns={4}
-      data={[
-        { img: LeaveEntry, text: 'Leave Entry', to: 'LeaveEntry' },
-        { img: LeaveStatus, text: 'Leave Status', to: 'LeaveStatus' },
-        { img: LeaveBalance, text: 'Leave Bal.', to: 'LeaveBalance' },
-        { img: LeaveStatus, text: 'C.Off', to: 'CoffEntry' },
-        { img: Outdoor, text: 'Outdoor', to: 'OutDoor' },
-        { img: ManualPunch, text: 'In/Out', to: 'InOut' },
-        { img: ClientVisit, text: 'Client Visit', to: 'ClientVisit' },
-        { img: Supervisor, text: 'Supervisor', to: 'SuperVisor' },
-        { img: ExpenseEntry, text: 'Expense ', to: 'Expense' },
-        { img: Odometer, text: 'Odometer', to: 'Odometer' },
-        { img: Payslip, text: 'Payslip', to: 'Payslip' },
-        { img: Task, text: 'Task', to: 'Task' },
-      ]}
-      renderItem={({ item }) => (
-        <TouchableOpacity
-          style={styles.itemContainer}
-          onPress={() => {
-            if (item.to === null || undefined) {
-              alert('This functionality is not available yet.');
-              return null;
-            } else {
-              navigation.navigate(item.to);
-            }
-          }}>
-          <View
-            style={{
-              width: WIDTH * 0.2,
-              height: HEIGHT * 0.09,
-              padding: 5,
-              borderRadius: 10,
-              elevation: 8,
-              backgroundColor: 'white',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}>
-            <Image source={item.img} style={styles.image} />
-            <Text
-              style={{
-                fontSize: 11,
-                fontFamily: 'Poppins-Regular',
-                color: 'black',
-                marginTop: 10,
-                textAlign: 'center',
+    <SafeAreaView style={{flex: 1}}>
+      <ScrollView contentContainerStyle={{flexGrow: 1}}>
+        <FlatList
+          numColumns={4}
+          style={{flex: 1}}
+          data={[
+            {img: LeaveEntry, text: 'Leave Entry', to: 'LeaveEntry'},
+            {img: LeaveStatus, text: 'Leave Status', to: 'LeaveStatus'},
+            {img: LeaveBalance, text: 'Leave Bal.', to: 'LeaveBalance'},
+            {img: LeaveStatus, text: 'C.Off', to: 'CoffEntry'},
+            {img: Outdoor, text: 'Outdoor', to: 'OutDoor'},
+            {img: ManualPunch, text: 'In/Out', to: 'InOut'},
+            {img: ClientVisit, text: 'Client Visit', to: 'ClientVisit'},
+            {img: Supervisor, text: 'Supervisor', to: 'SuperVisor'},
+            {img: ExpenseEntry, text: 'Expense ', to: 'Expense'},
+            {img: Odometer, text: 'Odometer', to: 'Odometer'},
+            {img: Payslip, text: 'Payslip', to: 'Payslip'},
+            {img: Task, text: 'Task', to: 'Task'},
+            {img: Task, text: 'IN_OUT2', to: 'IN_OUT2'},
+          ]}
+          renderItem={({item}) => (
+            <TouchableOpacity
+              style={styles.itemContainer}
+              onPress={() => {
+                if (item.to === null || undefined) {
+                  alert('This functionality is not available yet.');
+                  return null;
+                } else {
+                  navigation.navigate(item.to);
+                }
               }}>
-              {item.text}
-            </Text>
-          </View>
-        </TouchableOpacity>
-      )}
-      keyExtractor={(item, index) => index.toString()}
-    />
+              <View
+                style={{
+                  width: WIDTH * 0.2,
+                  height: HEIGHT * 0.09,
+                  padding: 5,
+                  borderRadius: 10,
+                  elevation: 8,
+                  backgroundColor: 'white',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}>
+                <Image source={item.img} style={styles.image} />
+                <Text
+                  style={{
+                    fontSize: 11,
+                    fontFamily: 'Poppins-Regular',
+                    color: 'black',
+                    marginTop: 10,
+                    textAlign: 'center',
+                  }}>
+                  {item.text}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          )}
+          keyExtractor={(item, index) => index.toString()}
+        />
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
 const TableHeader = () => {
   const headers = [
-    { text: 'Date', key: 'Date' },
-    { text: 'Check In', key: 'In' },
-    { text: 'Check Out', key: 'Out' },
-    { text: 'Working Hrs', key: 'Total_Hour' },
+    {text: 'Date', key: 'Date'},
+    {text: 'Check In', key: 'In'},
+    {text: 'Check Out', key: 'Out'},
+    {text: 'Working Hrs', key: 'Total_Hour'},
   ];
   return (
     <View
@@ -178,7 +184,7 @@ const TableHeader = () => {
         justifyContent: 'space-around',
       }}>
       {headers.map(header => (
-        <View style={{ width: WIDTH / 4, alignItems: 'center' }} key={header.key}>
+        <View style={{width: WIDTH / 4, alignItems: 'center'}} key={header.key}>
           <Text
             style={{
               fontSize: 14,
@@ -208,7 +214,7 @@ const monthNames = [
   'December',
 ];
 
-const ListView = ({ item }) => {
+const ListView = ({item}) => {
   // console.log('item', item);
   let color = '';
   let char = '';
@@ -332,7 +338,7 @@ const Attendance = () => {
         tx.executeSql(
           'SELECT client_url FROM ApiResponse ORDER BY id DESC LIMIT 1',
           [],
-          (_, { rows }) => {
+          (_, {rows}) => {
             const url = rows.item(0)?.client_url || '';
             resolve(url);
           },
@@ -357,7 +363,7 @@ const Attendance = () => {
     } catch (e) {
       console.error('Error retrieving details:', e);
     }
-    return { Id: null, Sl: null };
+    return {Id: null, Sl: null};
   };
 
   const initialize = async () => {
@@ -420,7 +426,7 @@ const Attendance = () => {
         }}>
         <FlatList
           data={data}
-          renderItem={({ item }) => <ListView item={item} />}
+          renderItem={({item}) => <ListView item={item} />}
           keyExtractor={(item, index) => index.toString()}
           ListFooterComponent={
             <View
@@ -468,15 +474,15 @@ const Home = () => {
   const flatListRef = useRef(null);
 
   useEffect(() => {
-    headerCardHeight.value = withTiming(HEIGHT * 0.5, { duration: 1500 });
-    bottomViewTranslateY.value = withTiming(0, { duration: 2000 }); // Animate to its final position
+    headerCardHeight.value = withTiming(HEIGHT * 0.5, {duration: 1500});
+    bottomViewTranslateY.value = withTiming(0, {duration: 2000}); // Animate to its final position
 
     if (flatListRef.current) {
       const todayIndex = dates.findIndex(date =>
         moment(date).isSame(moment(), 'day'),
       );
       if (todayIndex !== -1) {
-        flatListRef.current.scrollToIndex({ index: todayIndex, animated: true });
+        flatListRef.current.scrollToIndex({index: todayIndex, animated: true});
         setSelectedDate(dates[todayIndex]);
       }
     }
@@ -490,13 +496,13 @@ const Home = () => {
 
   const bottomViewStyle = useAnimatedStyle(() => {
     return {
-      transform: [{ translateY: bottomViewTranslateY.value }],
+      transform: [{translateY: bottomViewTranslateY.value}],
     };
   });
 
   // Function to generate initial dates
   function generateInitialDates() {
-    const initialDates = Array.from({ length: 30 }, (_, i) =>
+    const initialDates = Array.from({length: 30}, (_, i) =>
       moment()
         .subtract(15 - i, 'days')
         .format('YYYY-MM-DD'),
@@ -508,7 +514,7 @@ const Home = () => {
   // Function to load more dates
   const loadMoreDates = () => {
     const lastDate = moment(dates[dates.length - 1], 'YYYY-MM-DD');
-    const newDates = Array.from({ length: 365 }, (_, i) =>
+    const newDates = Array.from({length: 365}, (_, i) =>
       lastDate.subtract(i + 1, 'days').format('YYYY-MM-DD'),
     );
     setDates([...dates, ...newDates]);
@@ -520,7 +526,7 @@ const Home = () => {
     index,
   });
 
-  const renderDateItem = ({ item }) => {
+  const renderDateItem = ({item}) => {
     // console.log('itrmem', item);
     const isSelected = item === selectedDate;
     const isToday = moment(item).isSame(moment(), 'day');
@@ -626,8 +632,8 @@ const Home = () => {
         <Animated.View style={[styles.header, headerStyle]}>
           <LinearGradient
             colors={['#ff6347', '#b4000a']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
+            start={{x: 0, y: 0}}
+            end={{x: 1, y: 1}}
             style={styles.gradient}>
             <View
               style={{
@@ -709,7 +715,7 @@ const Home = () => {
               style={{
                 height: HEIGHT * 0.05,
                 width: WIDTH * 0.95,
-                marginTop: 5,
+                // marginTop: 5,
                 borderRadius: 10,
                 justifyContent: 'space-between',
                 alignItems: 'flex-start',
@@ -997,7 +1003,8 @@ const styles = StyleSheet.create({
     overflow: 'hidden', // Ensures children stay within rounded corners
   },
   gradient: {
-    flex: 1,
+    // flex: 1,
+    height: HEIGHT * 0.5,
     alignItems: 'center',
     justifyContent: 'flex-start',
   },
@@ -1019,10 +1026,10 @@ const styles = StyleSheet.create({
     // marginHorizontal: 1,
   },
   bottomView: {
-    position: 'absolute',
+    poomsition: 'absolute',
     bottom: 0,
     width: WIDTH * 0.99,
-    height: HEIGHT * 0.6,
+    height: HEIGHT * 0.75,
     backgroundColor: 'white',
     alignSelf: 'center',
     elevation: HEIGHT * 0.2,
@@ -1038,8 +1045,8 @@ const styles = StyleSheet.create({
   },
   searchBar: {
     width: WIDTH * 0.85,
-    height: HEIGHT * 0.22,
-    bottom: HEIGHT * 0.15,
+    height: HEIGHT * 0.2,
+    bottom: HEIGHT * 0.2,
     elevation: HEIGHT * 0.01,
     paddingTop: 5,
     paddingLeft: 10,
@@ -1050,13 +1057,13 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     backgroundColor: 'white',
     zIndex: 999,
-    marginTop: 4,
+    marginTop: 8,
   },
   tabContainer: {
     flex: 1,
     width: '100%',
     position: 'absolute',
-    marginTop: HEIGHT * 0.08,
+    marginTop: HEIGHT * 0.0001,
   },
   screenContainer: {
     flex: 1,
@@ -1065,7 +1072,7 @@ const styles = StyleSheet.create({
   },
   itemContainer: {
     // flex: 1,
-    height: HEIGHT * 0.095,
+    height: HEIGHT * 0.07,
     width: WIDTH * 0.18,
 
     margin: HEIGHT * 0.015,
