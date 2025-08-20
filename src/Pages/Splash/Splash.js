@@ -120,7 +120,7 @@ const Splash = ({ navigation }) => {
           reject(error);
         },
         {
-          enableHighAccuracy: true,
+          enableHighAccuracy: false,
           timeout: 15000,
           maximumAge: 10000,
         },

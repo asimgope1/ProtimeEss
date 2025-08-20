@@ -102,71 +102,85 @@ const get = async () => {
 };
 
 const Dashboard = () => {
-  const dispatch = useDispatch();
   const navigation = useNavigation();
+
+  // Categorized menu items
+  const menuCategories = [
+    {
+      title: 'Attendance',
+      items: [
+        {img: LeaveEntry, text: 'Leave Entry', to: 'LeaveEntry'},
+        {img: LeaveStatus, text: 'Leave Status', to: 'LeaveStatus'},
+        {img: LeaveBalance, text: 'Leave Bal.', to: 'LeaveBalance'},
+        {img: LeaveStatus, text: 'C.Off', to: 'CoffEntry'},
+        {img: Outdoor, text: 'Outdoor', to: 'OutDoor'},
+        {img: ManualPunch, text: 'In/Out', to: 'InOut'},
+      ]
+    },
+    {
+      title: 'Expense',
+      items: [
+        {img: ExpenseEntry, text: 'Expense', to: 'Expense'},
+        {img: Payslip, text: 'Payslip', to: 'Payslip'},
+      ]
+    },
+    {
+      title: 'Others',
+      items: [
+        {img: ClientVisit, text: 'Client Visit', to: 'ClientVisit'},
+        {img: Supervisor, text: 'Supervisor', to: 'SuperVisor'},
+        {img: Odometer, text: 'Odometer', to: 'Odometer'},
+        {img: Task, text: 'My Task', to: 'Task'},
+        {img: Task, text: 'Assign Task', to: 'Task'},
+        {img: Task, text: 'IN_OUT2', to: 'IN_OUT2'},
+      ]
+    }
+  ];
+
+  const handleItemPress = (item) => {
+    if (!item.to) {
+      alert('This functionality is not available yet.');
+      return;
+    }
+    navigation.navigate(item.to);
+  };
+
   return (
-    <SafeAreaView style={{flex: 1}}>
-      <ScrollView contentContainerStyle={{flexGrow: 1}}>
-        <FlatList
-          numColumns={4}
-          style={{flex: 1}}
-          data={[
-            {img: LeaveEntry, text: 'Leave Entry', to: 'LeaveEntry'},
-            {img: LeaveStatus, text: 'Leave Status', to: 'LeaveStatus'},
-            {img: LeaveBalance, text: 'Leave Bal.', to: 'LeaveBalance'},
-            {img: LeaveStatus, text: 'C.Off', to: 'CoffEntry'},
-            {img: Outdoor, text: 'Outdoor', to: 'OutDoor'},
-            {img: ManualPunch, text: 'In/Out', to: 'InOut'},
-            {img: ClientVisit, text: 'Client Visit', to: 'ClientVisit'},
-            {img: Supervisor, text: 'Supervisor', to: 'SuperVisor'},
-            {img: ExpenseEntry, text: 'Expense ', to: 'Expense'},
-            {img: Odometer, text: 'Odometer', to: 'Odometer'},
-            {img: Payslip, text: 'Payslip', to: 'Payslip'},
-            {img: Task, text: 'Task', to: 'Task'},
-            {img: Task, text: 'IN_OUT2', to: 'IN_OUT2'},
-          ]}
-          renderItem={({item}) => (
-            <TouchableOpacity
-              style={styles.itemContainer}
-              onPress={() => {
-                if (item.to === null || undefined) {
-                  alert('This functionality is not available yet.');
-                  return null;
-                } else {
-                  navigation.navigate(item.to);
-                }
+    // <SafeAreaView style={{flex: 1, backgroundColor: '#f5f5f5'}}>
+    <View style={{marginTop: 20, flex: 1}}>
+      <FlatList
+        data={menuCategories.flatMap(category => category.items)} // merge all
+        numColumns={4} // 4 columns grid
+        keyExtractor={(item, index) => index.toString()}
+        renderItem={({item}) => (
+          <TouchableOpacity
+            style={{
+              height: 80,
+              width: 80,
+              marginHorizontal: 10,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            onPress={() => handleItemPress(item)}>
+            <Image source={item.img} style={{width: 40, height: 40}} />
+            <Text
+              style={{
+                fontSize: 12,
+                fontWeight: 'bold',
+                color: 'black',
+                textAlign: 'center',
               }}>
-              <View
-                style={{
-                  width: WIDTH * 0.2,
-                  height: HEIGHT * 0.09,
-                  padding: 5,
-                  borderRadius: 10,
-                  elevation: 8,
-                  backgroundColor: 'white',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}>
-                <Image source={item.img} style={styles.image} />
-                <Text
-                  style={{
-                    fontSize: 11,
-                    fontFamily: 'Poppins-Regular',
-                    color: 'black',
-                    marginTop: 10,
-                    textAlign: 'center',
-                  }}>
-                  {item.text}
-                </Text>
-              </View>
-            </TouchableOpacity>
-          )}
-          keyExtractor={(item, index) => index.toString()}
-        />
-      </ScrollView>
-    </SafeAreaView>
+              {item.text}
+            </Text>
+          </TouchableOpacity>
+        )}
+      />
+    </View>
+
+    // </SafeAreaView>
   );
 };
+
 
 const TableHeader = () => {
   const headers = [
@@ -458,7 +472,7 @@ const TopTabs = () => {
       }}>
       <Tab.Screen name="Dashboard" component={Dashboard} />
       {/* <Tab.Screen name="Report" component={Report} /> */}
-      <Tab.Screen name="Attendance" component={Attendance} />
+      {/* <Tab.Screen name="Attendance" component={Attendance} /> */}
     </Tab.Navigator>
   );
 };
@@ -626,9 +640,9 @@ const Home = () => {
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-        {/* <ScrollView
+        <ScrollView
           contentContainerStyle={styles.flexGrow}
-          scrollEnabled={false}> */}
+          scrollEnabled={true}>
         <Animated.View style={[styles.header, headerStyle]}>
           <LinearGradient
             colors={['#ff6347', '#b4000a']}
@@ -974,36 +988,43 @@ const Home = () => {
             </View>
           </View>
           <View style={styles.tabContainer}>
-            <TopTabs />
+            <Dashboard />
           </View>
         </Animated.View>
-        {/* </ScrollView> */}
+        </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  // ===== Layout Styles =====
   container: {
     flex: 1,
-    backgroundColor: 'white',
   },
   flex: {
     flex: 1,
   },
   flexGrow: {
     flexGrow: 1,
+    marginBottom: 30,
   },
+  screenContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  // ===== Header Styles =====
   header: {
     width: WIDTH,
     alignItems: 'center',
     justifyContent: 'center',
     borderBottomLeftRadius: WIDTH * 0.05,
     borderBottomRightRadius: WIDTH * 0.05,
-    overflow: 'hidden', // Ensures children stay within rounded corners
+    overflow: 'hidden',
   },
   gradient: {
-    // flex: 1,
     height: HEIGHT * 0.5,
     alignItems: 'center',
     justifyContent: 'flex-start',
@@ -1013,6 +1034,8 @@ const styles = StyleSheet.create({
     fontSize: 21,
     fontFamily: 'Poppins-Bold',
   },
+
+  // ===== Date Related Styles =====
   dateList: {
     marginTop: 20,
   },
@@ -1020,14 +1043,20 @@ const styles = StyleSheet.create({
     width: WIDTH * 0.155,
     height: HEIGHT * 0.1,
     padding: 5,
-
     justifyContent: 'space-evenly',
     alignItems: 'center',
-    // marginHorizontal: 1,
   },
+  dateText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+
+  // ===== Bottom View Styles =====
   bottomView: {
-    poomsition: 'absolute',
-    bottom: 0,
+    // position: 'static', // Changed from 'static' to 'absolute' for proper positioning
+    // bottom: 0,
+
     width: WIDTH * 0.99,
     height: HEIGHT * 0.75,
     backgroundColor: 'white',
@@ -1036,13 +1065,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderTopLeftRadius: WIDTH * 0.05,
     borderTopRightRadius: WIDTH * 0.05,
-    // justifyContent: 'flex-start', // Align items to the top
   },
   bottomViewText: {
     color: 'black',
     fontSize: 20,
-    // marginTop: 20, // Add margin top to space it from the search bar
   },
+
+  // ===== Search Bar Styles =====
   searchBar: {
     width: WIDTH * 0.85,
     height: HEIGHT * 0.2,
@@ -1059,36 +1088,77 @@ const styles = StyleSheet.create({
     zIndex: 999,
     marginTop: 8,
   },
+
+  // ===== Tab Container Styles =====
   tabContainer: {
-    flex: 1,
+    // flex: 1,
     width: '100%',
     position: 'absolute',
-    marginTop: HEIGHT * 0.0001,
+    // marginTop: HEIGHT * 0.0001,
+    // marginBottom: 100,
   },
-  screenContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  itemContainer: {
-    // flex: 1,
-    height: HEIGHT * 0.07,
-    width: WIDTH * 0.18,
 
-    margin: HEIGHT * 0.015,
+  scrollContainer: {
+    flexGrow: 1,
+    paddingBottom: 20,
+  },
+
+  // Category section styles
+  categoryContainer: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 15,
+  },
+
+  // Category header styles
+  categoryHeader: {
+    fontSize: 12,
+    fontFamily: 'Poppins-SemiBold',
+    color: 'gray',
+    alignSelf:'center',
+    paddingBottom: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  flatListContainer: {
+    width: '100%', // Ensure full width
+  },
+
+  // Grid item styles
+  itemContainer: {
+    flex: 1,
+    maxWidth: '25%', // Ensures 4 items per row
+    alignItems: 'center',
+    paddingHorizontal: 5,
+  },
+
+  itemContent: {
+    width: '100%',
+    aspectRatio: 1, // Makes items square
+    backgroundColor: 'white',
+    borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
-    alignSelf: 'center',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 1},
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    padding: 8,
   },
+
   image: {
-    width: '100%', // Adjust based on your requirement
-    height: HEIGHT * 0.04, // Adjust based on your requirement
+    width: '60%',
+    height: '50%',
     resizeMode: 'contain',
+    marginBottom: 8,
   },
-  dateText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold',
+
+  itemText: {
+    fontSize: 12,
+    fontFamily: 'Poppins-Regular',
+    color: '#444',
+    textAlign: 'center',
   },
 });
 
