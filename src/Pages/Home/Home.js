@@ -115,14 +115,14 @@ const Dashboard = () => {
         {img: LeaveStatus, text: 'C.Off', to: 'CoffEntry'},
         {img: Outdoor, text: 'Outdoor', to: 'OutDoor'},
         {img: ManualPunch, text: 'In/Out', to: 'InOut'},
-      ]
+      ],
     },
     {
       title: 'Expense',
       items: [
         {img: ExpenseEntry, text: 'Expense', to: 'Expense'},
         {img: Payslip, text: 'Payslip', to: 'Payslip'},
-      ]
+      ],
     },
     {
       title: 'Others',
@@ -131,10 +131,10 @@ const Dashboard = () => {
         {img: Supervisor, text: 'Supervisor', to: 'SuperVisor'},
         {img: Odometer, text: 'Odometer', to: 'Odometer'},
         {img: Task, text: 'My Task', to: 'Task'},
-        {img: Task, text: 'Assign Task', to: 'Task'},
-        {img: Task, text: 'IN_OUT2', to: 'IN_OUT2'},
-      ]
-    }
+        {img: Task, text: 'Assign Task', to: 'AssignTask'},
+        // {img: Task, text: 'IN_OUT2', to: 'IN_OUT2'},
+      ],
+    },
   ];
 
   const handleItemPress = (item) => {
@@ -150,14 +150,14 @@ const Dashboard = () => {
     <View style={{marginTop: 20, flex: 1}}>
       <FlatList
         data={menuCategories.flatMap(category => category.items)} // merge all
-        numColumns={4} // 4 columns grid
+        numColumns={3} // 4 columns grid
         keyExtractor={(item, index) => index.toString()}
         renderItem={({item}) => (
           <TouchableOpacity
             style={{
               height: 80,
-              width: 80,
-              marginHorizontal: 10,
+              width: WIDTH * 0.3,
+              marginHorizontal: 6,
               alignItems: 'center',
               justifyContent: 'center',
             }}

@@ -29,6 +29,7 @@ import Odometer from '../Pages/Home/Dashboard/Odometer';
 import Payslip from '../Pages/Home/Dashboard/Payslip';
 import Task from '../Pages/Home/Dashboard/Task';
 import IN_OUT2 from '../Pages/Home/Dashboard/IN_OUT2';
+import AssignTask from '../Pages/Home/Dashboard/AssignTask';
 
 // Define the HomeStack
 const HomeStackNavigator = createNativeStackNavigator();
@@ -227,6 +228,11 @@ const MainStack = () => {
       <MainStackNavigator.Screen
         name="Task"
         component={Task}
+        options={{headerShown: false, animation: 'slide_from_right'}}
+      />
+      <MainStackNavigator.Screen
+        name="AssignTask"
+        component={AssignTask}
         options={{headerShown: false, animation: 'slide_from_right'}}
       />
       <MainStackNavigator.Screen
