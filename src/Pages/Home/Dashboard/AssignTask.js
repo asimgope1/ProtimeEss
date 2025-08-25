@@ -440,20 +440,20 @@ const AssignTask = ({navigation}) => {
   };
 
   // Get status color based on task status
-  const getStatusColor = status => {
-    switch (status) {
-      case 'Start':
-        return COLORS.WARNING;
-      case 'Resume':
-        return COLORS.PRIMARY;
-      case 'Pause':
-        return COLORS.DANGER;
-      case 'Complete':
-        return COLORS.SUCCESS;
-      default:
-        return COLORS.SECONDARY;
-    }
-  };
+  // const getStatusColor = status => {
+  //   switch (status) {
+  //     case 'Start':
+  //       return COLORS.WARNING;
+  //     case 'Resume':
+  //       return COLORS.PRIMARY;
+  //     case 'Pause':
+  //       return COLORS.DANGER;
+  //     case 'Complete':
+  //       return COLORS.SUCCESS;
+  //     default:
+  //       return COLORS.SECONDARY;
+  //   }
+  // };
 
   // Get priority color based on priority level
   const getPriorityColor = priority => {
@@ -469,10 +469,315 @@ const AssignTask = ({navigation}) => {
     }
   };
 
+  const handleStartTask = async taskId => {
+    try {
+      await updateTaskStatus(
+        taskId,
+        'Resume', // This maps to 'Start' action in API
+        50,
+        'Started working on the task',
+      );
+    } catch (error) {
+      console.error('Failed to start task:', error);
+    }
+  };
+  
+  const handlePauseTask = async taskId => {
+    try {
+      await updateTaskStatus(
+        taskId,
+        'Pause', // This maps to 'Pause' action in API
+        50,
+        'Paused the task',
+      );
+    } catch (error) {
+      console.error('Failed to pause task:', error);
+    }
+  };
+  
+  const handleResumeTask = async taskId => {
+    try {
+      await updateTaskStatus(
+        taskId,
+        'Resume', // This maps to 'Start' action in API
+        50,
+        'Resumed the task',
+      );
+    } catch (error) {
+      console.error('Failed to resume task:', error);
+    }
+  };
+  
+  const handleCompleteTask = async taskId => {
+    try {
+      await updateTaskStatus(
+        taskId,
+        'Complete', // This maps to 'Complete' action in API
+        100,
+        'Completed the task',
+      );
+    } catch (error) {
+      console.error('Failed to complete task:', error);
+    }
+  };
+  
+  
+    const updateTaskStatus = async (
+      taskId,
+      newStatus,
+      progress,
+      comments = '',
+    ) => {
+      try {
+        // Determine the action type based on UI status
+        let actionType;
+        switch (newStatus) {
+          case 'Resume': // In Progress
+            actionType = 'Start';
+            break;
+          case 'Pause': // Paused
+            actionType = 'Pause';
+            break;
+          case 'Complete': // Completed
+            actionType = 'Complete';
+            break;
+          case 'Start': // Not Started - should not happen but handle it
+            actionType = 'Start';
+            break;
+          default:
+            actionType = 'Start';
+        }
+  
+        // Make API call
+        const myHeaders = new Headers();
+        myHeaders.append('Content-Type', 'application/json');
+  
+        const raw = JSON.stringify({
+          TaskID: taskId,
+          staf_sl: Sl,
+          comments: comments || `${actionType} task ${taskId}`,
+          ActionType: actionType,
+          Date: new Date().toISOString(),
+        });
+  
+        const requestOptions = {
+          method: 'POST',
+          headers: myHeaders,
+          body: raw,
+          redirect: 'follow',
+        };
+  
+        console.log('Sending API request:', raw);
+  
+        const response = await fetch(
+          `${clientUrl}api/updatetask`,
+          requestOptions,
+        );
+        const result = await response.json();
+  
+        console.log('API Response:', result);
+  
+        // Only update UI if API call was successful
+        if (result.status === 'success' || result.Code === '200') {
+          setTasks(prevTasks =>
+            prevTasks.map(task =>
+              task.id === taskId
+                ? {
+                    ...task,
+                    status: newStatus,
+                    progress: progress,
+                    timeline: [
+                      ...task.timeline,
+                      {
+                        date: new Date().toISOString().split('T')[0],
+                        detail: comments || `Status changed to ${newStatus}`,
+                        user: 'You',
+                        ActionType: actionType,
+                        ActionTime: new Date().toISOString(),
+                      },
+                    ],
+                  }
+                : task,
+            ),
+          );
+          Alert.alert('Success', 'Task status updated successfully');
+        } else {
+          throw new Error(result.msg || 'API call failed');
+        }
+  
+        return result;
+      } catch (error) {
+        console.log('API Error:', error);
+        Alert.alert('Error', 'Failed to update task status: ' + error.message);
+        throw error;
+      }
+    };
+  
+    // Fixed getActionButtons function
+    const getActionButtons = task => {
+      console.log('Task status for buttons:', task.status);
+  
+      switch (task.status) {
+        case 'Start': // Not Started
+          return (
+            <>
+              <TouchableOpacity
+                style={[styles.actionBtn, styles.startBtn]}
+                onPress={() => handleStartTask(task.id)}>
+                <Icon name="play" size={16} color={COLORS.WHITE} />
+                <Text style={styles.btnText}>Start</Text>
+              </TouchableOpacity>
+              <View style={[styles.actionBtn, styles.disabledBtn]}>
+                <Icon name="pause" size={16} color={COLORS.DARK_GRAY} />
+                <Text style={[styles.btnText, {color: COLORS.DARK_GRAY}]}>
+                  Pause
+                </Text>
+              </View>
+              <View style={[styles.actionBtn, styles.disabledBtn]}>
+                <Icon name="play-circle" size={16} color={COLORS.DARK_GRAY} />
+                <Text style={[styles.btnText, {color: COLORS.DARK_GRAY}]}>
+                  Resume
+                </Text>
+              </View>
+              <View style={[styles.actionBtn, styles.disabledBtn]}>
+                <Icon name="check-circle" size={16} color={COLORS.DARK_GRAY} />
+                <Text style={[styles.btnText, {color: COLORS.DARK_GRAY}]}>
+                  Complete
+                </Text>
+              </View>
+            </>
+          );
+  
+        case 'Resume': // In Progress
+          return (
+            <>
+              <View style={[styles.actionBtn, styles.disabledBtn]}>
+                <Icon name="play" size={16} color={COLORS.DARK_GRAY} />
+                <Text style={[styles.btnText, {color: COLORS.DARK_GRAY}]}>
+                  Start
+                </Text>
+              </View>
+              <TouchableOpacity
+                style={[styles.actionBtn, styles.pauseBtn]}
+                onPress={() => handlePauseTask(task.id)}>
+                <Icon name="pause" size={16} color={COLORS.WHITE} />
+                <Text style={styles.btnText}>Pause</Text>
+              </TouchableOpacity>
+              <View style={[styles.actionBtn, styles.disabledBtn]}>
+                <Icon name="play-circle" size={16} color={COLORS.DARK_GRAY} />
+                <Text style={[styles.btnText, {color: COLORS.DARK_GRAY}]}>
+                  Resume
+                </Text>
+              </View>
+              <TouchableOpacity
+                style={[styles.actionBtn, styles.completeBtn]}
+                onPress={() => handleCompleteTask(task.id)}>
+                <Icon name="check-circle" size={16} color={COLORS.WHITE} />
+                <Text style={styles.btnText}>Complete</Text>
+              </TouchableOpacity>
+            </>
+          );
+  
+        case 'Pause': // Paused
+          return (
+            <>
+              <View style={[styles.actionBtn, styles.disabledBtn]}>
+                <Icon name="play" size={16} color={COLORS.DARK_GRAY} />
+                <Text style={[styles.btnText, {color: COLORS.DARK_GRAY}]}>
+                  Start
+                </Text>
+              </View>
+              <View style={[styles.actionBtn, styles.disabledBtn]}>
+                <Icon name="pause" size={16} color={COLORS.DARK_GRAY} />
+                <Text style={[styles.btnText, {color: COLORS.DARK_GRAY}]}>
+                  Pause
+                </Text>
+              </View>
+              <TouchableOpacity
+                style={[styles.actionBtn, styles.resumeBtn]}
+                onPress={() => handleResumeTask(task.id)}>
+                <Icon name="play-circle" size={16} color={COLORS.WHITE} />
+                <Text style={styles.btnText}>Resume</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.actionBtn, styles.completeBtn]}
+                onPress={() => handleCompleteTask(task.id)}>
+                <Icon name="check-circle" size={16} color={COLORS.WHITE} />
+                <Text style={styles.btnText}>Complete</Text>
+              </TouchableOpacity>
+            </>
+          );
+  
+        case 'Complete': // Completed
+          return (
+            <>
+              <View style={[styles.actionBtn, styles.disabledBtn]}>
+                <Icon name="play" size={16} color={COLORS.DARK_GRAY} />
+                <Text style={[styles.btnText, {color: COLORS.DARK_GRAY}]}>
+                  Start
+                </Text>
+              </View>
+              <View style={[styles.actionBtn, styles.disabledBtn]}>
+                <Icon name="pause" size={16} color={COLORS.DARK_GRAY} />
+                <Text style={[styles.btnText, {color: COLORS.DARK_GRAY}]}>
+                  Pause
+                </Text>
+              </View>
+              <View style={[styles.actionBtn, styles.disabledBtn]}>
+                <Icon name="play-circle" size={16} color={COLORS.DARK_GRAY} />
+                <Text style={[styles.btnText, {color: COLORS.DARK_GRAY}]}>
+                  Resume
+                </Text>
+              </View>
+              <View style={[styles.actionBtn, styles.disabledBtn]}>
+                <Icon name="check-circle" size={16} color={COLORS.DARK_GRAY} />
+                <Text style={[styles.btnText, {color: COLORS.DARK_GRAY}]}>
+                  Complete
+                </Text>
+              </View>
+            </>
+          );
+  
+        default:
+          console.warn('Unknown task status:', task.status);
+          return null;
+      }
+    };
+  
+    // Fixed getStatusColor function to use API status values
+    const getStatusColor = status => {
+      switch (status) {
+        case 'Start': // Not Started
+          return COLORS.WARNING;
+        case 'Resume': // In Progress
+          return COLORS.PRIMARY;
+        case 'Pause': // Paused
+          return COLORS.DANGER;
+        case 'Complete': // Completed
+          return COLORS.SUCCESS;
+        default:
+          return COLORS.SECONDARY;
+      }
+    };
+  
+    // Fixed getStatusText function for display
+    const getStatusText = status => {
+      switch (status) {
+        case 'Start':
+          return 'Not Started';
+        case 'Resume':
+          return 'In Progress';
+        case 'Pause':
+          return 'Paused';
+        case 'Complete':
+          return 'Completed';
+        default:
+          return status;
+      }
+    };
+
   const renderTaskItem = ({item}) => (
-    <TouchableOpacity
-      style={styles.card}
-      onPress={() => openModal('details', item)}>
+    <View style={styles.card}>
       {/* Card Header */}
       <View style={styles.cardHeader}>
         <View style={styles.titleContainer}>
@@ -482,7 +787,7 @@ const AssignTask = ({navigation}) => {
               styles.statusBadge,
               {backgroundColor: getStatusColor(item.status)},
             ]}>
-            <Text style={styles.statusText}>{item.status}</Text>
+            <Text style={styles.statusText}>{getStatusText(item.status)}</Text>
           </View>
         </View>
         <View style={styles.headerButtons}>
@@ -490,6 +795,30 @@ const AssignTask = ({navigation}) => {
             style={styles.iconButton}
             onPress={() => openModal('log', item)}>
             <Icon name="clock-outline" size={20} color={COLORS.PRIMARY} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.iconButton}
+            onPress={() => openModal('comment', item)}>
+            <Icon
+              name="comment-text-outline"
+              size={20}
+              color={COLORS.SUCCESS}
+            />
+            {item.comments.length > 0 && (
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>{item.comments.length}</Text>
+              </View>
+            )}
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.iconButton}
+            onPress={() => openModal('attachment', item)}>
+            <Icon name="paperclip" size={20} color={COLORS.WARNING} />
+            {item.attachments.length > 0 && (
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>{item.attachments.length}</Text>
+              </View>
+            )}
           </TouchableOpacity>
         </View>
       </View>
@@ -538,7 +867,18 @@ const AssignTask = ({navigation}) => {
           )}
         </View>
       )}
-    </TouchableOpacity>
+
+      {/* Progress Bar */}
+      {/* <View style={styles.progressContainer}>
+        <View style={styles.progressBar}>
+          <View style={[styles.progressFill, {width: `${item.progress}%`}]} />
+        </View>
+        <Text style={styles.progressText}>{item.progress}% Complete</Text>
+      </View> */}
+
+      {/* Action Buttons */}
+      <View style={styles.actionRow}>{getActionButtons(item)}</View>
+    </View>
   );
 
   const renderCreateForm = () => (
@@ -882,6 +1222,7 @@ const styles = StyleSheet.create({
   },
 
   // Card Styles (matching the Task component)
+  // Card
   card: {
     backgroundColor: COLORS.CARD_BACKGROUND,
     borderRadius: 12,
@@ -928,6 +1269,116 @@ const styles = StyleSheet.create({
   iconButton: {
     padding: 4,
     position: 'relative',
+  },
+  badge: {
+    position: 'absolute',
+    top: -2,
+    right: -2,
+    backgroundColor: COLORS.DANGER,
+    borderRadius: 10,
+    width: 16,
+    height: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  badgeText: {
+    color: COLORS.WHITE,
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
+
+  // Priority
+  priorityContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  priorityDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    marginRight: 6,
+  },
+  priorityText: {
+    fontSize: 12,
+    color: COLORS.TEXT_SECONDARY,
+    fontWeight: '500',
+  },
+
+  description: {
+    fontSize: 14,
+    color: COLORS.TEXT_SECONDARY,
+    marginBottom: 12,
+    lineHeight: 20,
+  },
+
+  dueDateContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  dueDate: {
+    fontSize: 13,
+    color: COLORS.TEXT_SECONDARY,
+    marginLeft: 6,
+  },
+
+  // Progress
+  progressContainer: {
+    marginBottom: 15,
+  },
+  progressBar: {
+    height: 6,
+    backgroundColor: COLORS.LIGHT_GRAY,
+    borderRadius: 3,
+    overflow: 'hidden',
+    marginBottom: 5,
+  },
+  progressFill: {
+    height: '100%',
+    backgroundColor: COLORS.PRIMARY,
+    borderRadius: 3,
+  },
+  progressText: {
+    fontSize: 12,
+    color: COLORS.TEXT_SECONDARY,
+    textAlign: 'right',
+  },
+
+  // Action buttons
+  actionRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 8,
+  },
+  actionBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 8,
+    borderRadius: 6,
+    gap: 4,
+  },
+  disabledBtn: {
+    backgroundColor: COLORS.LIGHT_GRAY,
+  },
+  startBtn: {
+    backgroundColor: COLORS.SUCCESS,
+  },
+  pauseBtn: {
+    backgroundColor: COLORS.WARNING,
+  },
+  resumeBtn: {
+    backgroundColor: COLORS.PRIMARY,
+  },
+  completeBtn: {
+    backgroundColor: '#28a745',
+  },
+  btnText: {
+    color: COLORS.WHITE,
+    fontWeight: '600',
+    fontSize: 12,
   },
 
   // Meta information
