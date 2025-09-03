@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "829803267948",
+    "project_id": "protimeess",
+    "storage_bucket": "protimeess.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:829803267948:android:1858a27538b9ad7cc69549",
+        "android_client_info": {
+          "package_name": "com.protimeess"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAHW5wOYsNBxQ2WIyRUUEmXgTlZqNtiCk8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
