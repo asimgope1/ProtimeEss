@@ -229,7 +229,7 @@ const Check = ({navigation}) => {
                 elevation: 5,
               }}>
               <Image
-                source={require('../../Assets/images/logo.png')}
+                source={require('../../Assets/images/log.jpg')}
                 style={{
                   width: '85%',
                   height: '100%',
