@@ -197,7 +197,7 @@ const Splash = ({ navigation }) => {
             alignSelf: 'center',
           }}>
           <Animated.View style={[styles.logoContainer1, logoStyle]}>
-            <Image
+            {/* <Image
               source={LOGO}
               style={{
                 height: '100%',
@@ -205,13 +205,13 @@ const Splash = ({ navigation }) => {
                 resizeMode: 'contain',
                 alignSelf: 'center',
               }}
-            />
+            /> */}
           </Animated.View>
           <Animated.View style={[styles.logoContainer, logo2Style]}>
             <Image
               source={LOGO2}
               style={{
-                height: '100%',
+                height: '200%',
                 width: '100%',
                 resizeMode: 'contain',
                 alignSelf: 'center',

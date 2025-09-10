@@ -27,6 +27,7 @@ import {storeObjByKey, storeStringByKey} from '../../utils/Storage';
 import {checkuserToken} from '../../redux/actions/auth';
 import {useDispatch} from 'react-redux';
 import {Loader} from '../../components/Loader';
+import messaging from '@react-native-firebase/messaging';
 
 export const {width: WIDTH, height: HEIGHT} = Dimensions.get('window');
 
@@ -48,6 +49,18 @@ const Login = ({navigation}) => {
   const headerCardHeight = useSharedValue(0);
   const loginContainerTranslateY = useSharedValue(HEIGHT);
   const animatedViewTranslateX = useSharedValue(WIDTH);
+
+
+  async function requestUserPermission() {
+    const authStatus = await messaging().requestPermission();
+    const enabled =
+      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+      authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+
+    if (enabled) {
+      console.log('Authorization status:', authStatus);
+    }
+  }
 
   const headerStyle = useAnimatedStyle(() => {
     return {
@@ -84,6 +97,7 @@ const Login = ({navigation}) => {
   };
 
   useEffect(() => {
+
     headerCardHeight.value = withTiming(HEIGHT * 0.5, {duration: 1500});
     loginContainerTranslateY.value = withTiming(0, {duration: 1500});
     animatedViewTranslateX.value = withTiming(0, {duration: 1500});
@@ -93,6 +107,7 @@ const Login = ({navigation}) => {
     };
 
     call();
+        requestUserPermission();
   }, []);
 
   const login = async () => {

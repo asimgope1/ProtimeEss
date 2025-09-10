@@ -132,6 +132,7 @@ const Dashboard = () => {
         {img: Odometer, text: 'Odometer', to: 'Odometer'},
         {img: Task, text: 'My Task', to: 'Task'},
         {img: Task, text: 'Assign Task', to: 'AssignTask'},
+        {img: Task, text: 'Tour', to: 'Tour'},
         // {img: Task, text: 'IN_OUT2', to: 'IN_OUT2'},
       ],
     },

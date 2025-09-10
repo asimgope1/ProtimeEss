@@ -30,6 +30,7 @@ import Payslip from '../Pages/Home/Dashboard/Payslip';
 import Task from '../Pages/Home/Dashboard/Task';
 import IN_OUT2 from '../Pages/Home/Dashboard/IN_OUT2';
 import AssignTask from '../Pages/Home/Dashboard/AssignTask';
+import Tour from '../Pages/Home/Dashboard/Tour';
 
 // Define the HomeStack
 const HomeStackNavigator = createNativeStackNavigator();
@@ -238,6 +239,11 @@ const MainStack = () => {
       <MainStackNavigator.Screen
         name="IN_OUT2"
         component={IN_OUT2}
+        options={{headerShown: false, animation: 'slide_from_right'}}
+      />
+      <MainStackNavigator.Screen
+        name="Tour"
+        component={Tour}
         options={{headerShown: false, animation: 'slide_from_right'}}
       />
     </MainStackNavigator.Navigator>

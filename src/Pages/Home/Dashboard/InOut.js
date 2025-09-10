@@ -26,6 +26,7 @@ import WebView from 'react-native-webview';
 import {useFocusEffect} from '@react-navigation/native';
 import {launchCamera} from 'react-native-image-picker';
 import RNFS from 'react-native-fs';
+import ImageResizer from 'react-native-image-resizer';
 
 const InOut = ({navigation}) => {
   const [clientUrl, setClientUrl] = useState('');
@@ -70,90 +71,112 @@ const InOut = ({navigation}) => {
     fetchLocation();
   }, []);
 
-  const handleApplyLeave = base64 => {
-    setLoading(true);
-    // Check if Latitude and Longitude are valid
-    if (!Latitude || !Longitude) {
-      alert(
-        'Location data is missing. Please ensure your GPS is enabled and try again.',
-      );
-      return; // Exit the function if validation fails
-    }
+const handleApplyLeave = base64 => {
+  console.log('all data', {
+    loc_cd: Id,
+    staf_sl: Sl,
+    div_sl: leaveType,
+    log_dt: currentDateTime
+      .toLocaleDateString('en-GB')
+      .split('/')
+      .reverse()
+      .join('/'),
+    log_time: currentDateTime.toLocaleTimeString('en-GB', {}),
+    log_longitude: Longitude,
+    log_lattitude: Latitude,
+    log_location: city,
+    log_note: note,
+    log_status: 'P',
+    post_type: status,
+  });
 
-    const myHeaders = new Headers();
-    myHeaders.append('Content-Type', 'application/json');
+  // Validate location
+  if (!Latitude || !Longitude) {
+    alert(
+      'Location data is missing. Please ensure your GPS is enabled and try again.',
+    );
+    return;
+  }
 
-    const raw = JSON.stringify({
-      loc_cd: Id,
-      staf_sl: Sl,
-      div_sl: leaveType,
-      log_dt: currentDateTime
-        .toLocaleDateString('en-GB')
-        .split('/')
-        .reverse()
-        .join('/'),
-      log_time: currentDateTime.toLocaleTimeString('en-GB', {}),
-      log_longitude: Longitude,
-      log_lattitude: Latitude,
-      log_location: city,
-      log_note: note,
-      log_img: base64,
-      log_status: 'P',
-      post_type: status,
-    });
+  const myHeaders = new Headers();
+  myHeaders.append('Content-Type', 'application/json');
 
-    console.log('raw', raw);
+  const raw = JSON.stringify({
+    loc_cd: Id,
+    staf_sl: Sl,
+    div_sl: leaveType,
+    log_dt: currentDateTime
+      .toLocaleDateString('en-GB')
+      .split('/')
+      .reverse()
+      .join('/'),
+    log_time: currentDateTime.toLocaleTimeString('en-GB', {}),
+    log_longitude: Longitude,
+    log_lattitude: Latitude,
+    log_location: city,
+    log_note: note,
+    log_img: base64, // now optimized base64
+    log_status: 'P',
+    post_type: status,
+  });
 
-    const requestOptions = {
-      method: 'POST',
-      headers: myHeaders,
-      body: raw,
-      redirect: 'follow',
-    };
+  setLoading(true);
 
-    fetch(`${clientUrl}api/manualposting`, requestOptions)
-      .then(response => response.json())
-      .then(result => {
-        console.log('reddddd', result);
-        if (result.Code === '200') {
-          setLoading(false);
-
-          // clear all state
-          setLeaveType('');
-          setstatus('');
-          setNote('');
-          setImage(null);
-          alert(result.msg);
-        }
-        console.log('applyyy', result);
-        setLeaveType('');
-        setstatus('');
-        setNote('');
-        setImage(null);
-        setLoading(false);
-      })
-      .catch(error => console.error(error));
+  const requestOptions = {
+    method: 'POST',
+    headers: myHeaders,
+    body: raw,
+    redirect: 'follow',
   };
 
-  const pickImage = () => {
-    launchCamera({mediaType: 'photo'}, response => {
-      if (response.assets && response.assets.length > 0) {
-        const image = response.assets[0];
-        setImage(image.uri);
-        convertToBase64(image.uri);
+  fetch(`${clientUrl}api/manualposting`, requestOptions)
+    .then(response => response.json())
+    .then(result => {
+      console.log('apply result', result);
+      if (result.Code === '200') {
+        alert(result.msg);
       }
-    });
-  };
+      // clear all state
+      setLeaveType('');
+      setstatus('');
+      setNote('');
+      setImage(null);
+    })
+    .catch(error => console.error('API Error:', error))
+    .finally(() => setLoading(false));
+};
 
-  const convertToBase64 = async uri => {
-    try {
-      const base64 = await RNFS.readFile(uri, 'base64');
-      setBase64String(base64);
-      handleApplyLeave(base64);
-    } catch (error) {
-      console.error('Error converting image to Base64:', error);
+const pickImage = () => {
+  launchCamera({mediaType: 'photo'}, async response => {
+    if (response.assets && response.assets.length > 0) {
+      const image = response.assets[0];
+      setImage(image.uri);
+
+      try {
+        // ✅ Resize + compress before converting to Base64
+        const resizedImage = await ImageResizer.createResizedImage(
+          image.uri, // original path
+          400, // max width
+          400, // max height
+          'JPEG', // format
+          70, // quality (0-100)
+          0, // rotation
+        );
+
+        console.log('Resized image:', resizedImage);
+
+        // Convert resized image to Base64
+        const base64 = await RNFS.readFile(resizedImage.uri, 'base64');
+        setBase64String(base64);
+
+        // Send API
+        handleApplyLeave(base64);
+      } catch (error) {
+        console.error('Error resizing or converting image:', error);
+      }
     }
-  };
+  });
+};
 
   const leaveList = async loc => {
     setLoading(true);
