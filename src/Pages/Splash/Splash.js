@@ -134,7 +134,7 @@ const Splash = ({ navigation }) => {
         `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`,
       );
       const result = await response.json();
-      console.log('Reverse geocode result:', result);
+console.log('Reverse geocode result:', JSON.stringify(result, null, 2));
       storeObjByKey('location', result);
     } catch (error) {
       console.error('Error fetching reverse geocode:', error);

@@ -55,7 +55,7 @@ import {clearAll, getObjByKey} from '../../utils/Storage';
 import {checkuserToken} from '../../redux/actions/auth';
 import {useDispatch} from 'react-redux';
 import SQLitePlugin from 'react-native-sqlite-2';
-import {useNavigation} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 
 // const get = async () => {
 //   let tree = await getObjByKey('loginResponse');
@@ -381,6 +381,8 @@ const Attendance = () => {
     return {Id: null, Sl: null};
   };
 
+
+
   const initialize = async () => {
     try {
       const [clientUrl, details] = await Promise.all([
@@ -483,6 +485,7 @@ const Home = () => {
     moment().format('YYYY-MM-DD'),
   );
   const [dates, setDates] = useState(generateInitialDates());
+  const navigation = useNavigation();
 
   const headerCardHeight = useSharedValue(0);
   const bottomViewTranslateY = useSharedValue(HEIGHT); // Start from bottom
@@ -587,9 +590,19 @@ const Home = () => {
       </TouchableOpacity>
     );
   };
-  useEffect(() => {
+  // useEffect(() => {
+  //   get();
+  // }, []);
+useFocusEffect(
+  React.useCallback(() => {
     get();
-  }, []);
+
+    // optional: if you want cleanup when leaving
+    return () => {
+      console.log('Leaving Home screen');
+    };
+  }, []),
+);
   const get = async () => {
     try {
       let tree = await getObjByKey('loginResponse');
@@ -644,354 +657,361 @@ const Home = () => {
         <ScrollView
           contentContainerStyle={styles.flexGrow}
           scrollEnabled={true}>
-        <Animated.View style={[styles.header, headerStyle]}>
-          <LinearGradient
-            colors={['#ff6347', '#b4000a']}
-            start={{x: 0, y: 0}}
-            end={{x: 1, y: 1}}
-            style={styles.gradient}>
-            <View
-              style={{
-                marginTop: HEIGHT * 0.05,
-                height: HEIGHT * 0.1,
-                width: WIDTH * 0.9,
-                // backgroundColor: WHITE,
-                borderRadius: 10,
-                // elevation: 20,
-                marginHorizontal: 10,
-                justifyContent: 'center',
-                alignItems: 'center',
-                flexDirection: 'row',
-              }}>
+          <Animated.View style={[styles.header, headerStyle]}>
+            <LinearGradient
+              colors={['#ff6347', '#b4000a']}
+              start={{x: 0, y: 0}}
+              end={{x: 1, y: 1}}
+              style={styles.gradient}>
               <View
                 style={{
-                  height: '35%',
-                  width: '50%',
+                  marginTop: HEIGHT * 0.05,
+                  height: HEIGHT * 0.1,
+                  width: WIDTH * 0.9,
+                  // backgroundColor: WHITE,
+                  borderRadius: 10,
+                  // elevation: 20,
+                  marginHorizontal: 10,
                   justifyContent: 'center',
-                  alignSelf: 'center',
-                }}>
-                <Text style={styles.headerText}>{name}</Text>
-                <Text
-                  style={{
-                    ...styles.headerText,
-                    fontSize: 14,
-                  }}>
-                  ID: {code} | {dept}
-                </Text>
-              </View>
-              <View
-                style={{
-                  height: '100%',
-                  width: '50%',
                   alignItems: 'center',
-                  justifyContent: 'flex-end',
-                  alignSelf: 'flex-end',
                   flexDirection: 'row',
                 }}>
                 <View
                   style={{
-                    width: '22%',
-                    height: '50%',
-                    borderRadius: 10,
-                    elevation: 15,
+                    height: '35%',
+                    width: '50%',
+                    justifyContent: 'center',
+                    alignSelf: 'center',
+                  }}>
+                  <Text style={styles.headerText}>{name}</Text>
+                  <Text
+                    style={{
+                      ...styles.headerText,
+                      fontSize: 14,
+                    }}>
+                    ID: {code} | {dept}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    height: '100%',
+                    width: '50%',
+                    alignItems: 'center',
+                    justifyContent: 'flex-end',
+                    alignSelf: 'flex-end',
+                    flexDirection: 'row',
+                  }}>
+                  <View
+                    style={{
+                      width: '22%',
+                      height: '50%',
+                      borderRadius: 10,
+                      elevation: 15,
+                      backgroundColor: 'white',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      // marginRight: 10,
+                    }}>
+                    <Image
+                      source={BELL}
+                      style={{
+                        width: '70%',
+                        height: '100%',
+                        resizeMode: 'contain',
+                        tintColor: '#b4000a',
+                      }}
+                    />
+                  </View>
+                </View>
+              </View>
+
+              {/* line segment */}
+              <View
+                style={{
+                  height: HEIGHT * 0.001,
+                  width: WIDTH,
+                  backgroundColor: GRAY,
+
+                  marginHorizontal: 10,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  flexDirection: 'row',
+                }}
+              />
+
+              <View
+                style={{
+                  height: HEIGHT * 0.05,
+                  width: WIDTH * 0.95,
+                  // marginTop: 5,
+                  borderRadius: 10,
+                  justifyContent: 'space-between',
+                  alignItems: 'flex-start',
+                  flexDirection: 'row',
+                }}>
+                <View
+                  style={{
+                    height: '70%',
+                    width: '33%',
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                  }}>
+                  <Text
+                    style={{
+                      color: 'white',
+                      fontSize: 17,
+                      fontFamily: 'Poppins-Bold',
+                    }}>
+                    Select Date
+                  </Text>
+                  <Icon
+                    name="info-outline"
+                    type="MaterialIcons"
+                    color="white"
+                    size={HEIGHT * 0.029}
+                  />
+                </View>
+
+                <View
+                  style={{
+                    height: '80%',
+                    width: '50%',
+                    flexDirection: 'row',
+                    justifyContent: 'space-around',
+                    paddingLeft: 5,
+                    padding: 2,
+                  }}>
+                  <Icon
+                    name="calendar"
+                    type="evilicon"
+                    color="white"
+                    size={HEIGHT * 0.032}
+                  />
+                  <Text
+                    style={{
+                      color: 'white',
+                      fontSize: 18,
+                      fontFamily: 'Poppins-Regular',
+                    }}>
+                    {moment(selectedDate).format('MMMM')}
+                  </Text>
+                  <Text
+                    style={{
+                      color: 'white',
+                      fontSize: 18,
+                      fontFamily: 'Poppins-Regular',
+                    }}>
+                    {moment(selectedDate).format('YYYY')}
+                  </Text>
+                </View>
+              </View>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  width: '100%',
+                  height: HEIGHT * 0.125,
+                  bottom: HEIGHT * 0.03,
+                }}>
+                <FlatList
+                  horizontal
+                  ref={flatListRef}
+                  getItemLayout={getItemLayout}
+                  data={dates}
+                  renderItem={renderDateItem}
+                  keyExtractor={item => item}
+                  contentContainerStyle={styles.dateList}
+                  showsHorizontalScrollIndicator={false}
+                  // onEndReached={loadMoreDates}
+                  onEndReachedThreshold={0.1}
+                />
+              </View>
+            </LinearGradient>
+          </Animated.View>
+          <Animated.View style={[styles.bottomView, bottomViewStyle]}>
+            <View style={styles.searchBar}>
+              <View
+                style={{
+                  width: WIDTH * 0.85,
+                  height: HEIGHT * 0.055,
+                  alignSelf: 'center',
+                  marginLeft: 7,
+                  justifyContent: 'space-around',
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                }}>
+                <View>
+                  <Text
+                    style={{
+                      color: BLACK,
+                      fontSize: 22,
+                      fontFamily: 'Poppins-Bold',
+                    }}>
+                    Monthly Attendance
+                  </Text>
+                  <Text
+                    style={{
+                      color: BLACK,
+                      fontSize: 13,
+                      fontFamily: 'Poppins-Regular',
+                    }}>
+                    {moment(selectedDate).format('LLLL')}
+                  </Text>
+                </View>
+
+                {/* Refresh button */}
+                <TouchableOpacity onPress={get}>
+                  <Icon name="refresh" size={28} color={BLACK} />
+                </TouchableOpacity>
+              </View>
+              <View
+                style={{
+                  width: WIDTH * 0.9,
+                  height: HEIGHT * 0.1,
+                  alignSelf: 'center',
+                  justifyContent: 'space-evenly',
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  // backgroundColor: 'green',
+                  padding: 10,
+                  marginTop: 10,
+                }}>
+                <View
+                  style={{
+                    width: WIDTH * 0.18,
+                    height: HEIGHT * 0.075,
                     backgroundColor: 'white',
                     alignItems: 'center',
-                    justifyContent: 'center',
-                    // marginRight: 10,
+                    // padding: 5,
                   }}>
-                  <Image
-                    source={BELL}
+                  <Text
                     style={{
-                      width: '70%',
-                      height: '100%',
-                      resizeMode: 'contain',
-                      tintColor: '#b4000a',
-                    }}
-                  />
+                      color: BLACK,
+                      fontSize: 13,
+                      fontFamily: 'Poppins-SemiBold',
+                    }}>
+                    Present
+                  </Text>
+                  <Text
+                    style={{
+                      paddingTop: 5,
+                      color: '#09692c',
+                      fontSize: 28,
+                      fontFamily: 'Poppins-Bold',
+                    }}>
+                    {present}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    marginTop: HEIGHT * 0.06,
+                    height: HEIGHT * 0.05,
+                    width: WIDTH * 0.001,
+                    backgroundColor: GRAY,
+                  }}
+                />
+                <View
+                  style={{
+                    width: WIDTH * 0.18,
+                    height: HEIGHT * 0.075,
+                    backgroundColor: 'white',
+                    alignItems: 'center',
+                    // padding: 5,
+                  }}>
+                  <Text
+                    style={{
+                      color: BLACK,
+                      fontSize: 13,
+                      fontFamily: 'Poppins-SemiBold',
+                    }}>
+                    Absent
+                  </Text>
+                  <Text
+                    style={{
+                      paddingTop: 5,
+                      color: RED,
+                      fontSize: 28,
+                      fontFamily: 'Poppins-Bold',
+                    }}>
+                    {absent}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    marginTop: HEIGHT * 0.06,
+                    height: HEIGHT * 0.05,
+                    width: WIDTH * 0.001,
+                    backgroundColor: GRAY,
+                  }}
+                />
+                <View
+                  style={{
+                    width: WIDTH * 0.18,
+                    height: HEIGHT * 0.075,
+                    backgroundColor: 'white',
+                    alignItems: 'center',
+                    // padding: 5,
+                  }}>
+                  <Text
+                    style={{
+                      color: BLACK,
+                      fontSize: 13,
+                      fontFamily: 'Poppins-SemiBold',
+                    }}>
+                    Leave
+                  </Text>
+                  <Text
+                    style={{
+                      paddingTop: 5,
+                      color: BLUE,
+                      fontSize: 28,
+                      fontFamily: 'Poppins-Bold',
+                    }}>
+                    {leave}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    marginTop: HEIGHT * 0.06,
+                    height: HEIGHT * 0.05,
+                    width: WIDTH * 0.001,
+                    backgroundColor: GRAY,
+                  }}
+                />
+                <View
+                  style={{
+                    width: WIDTH * 0.18,
+                    height: HEIGHT * 0.075,
+                    backgroundColor: 'white',
+                    alignItems: 'center',
+                    // padding: 5,
+                  }}>
+                  <Text
+                    style={{
+                      color: BLACK,
+                      fontSize: 13,
+                      fontFamily: 'Poppins-SemiBold',
+                    }}>
+                    WO/H
+                  </Text>
+                  <Text
+                    style={{
+                      paddingTop: 5,
+                      color: ORANGE,
+                      fontSize: 28,
+                      fontFamily: 'Poppins-Bold',
+                    }}>
+                    {half + woff}
+                  </Text>
                 </View>
               </View>
             </View>
-
-            {/* line segment */}
-            <View
-              style={{
-                height: HEIGHT * 0.001,
-                width: WIDTH,
-                backgroundColor: GRAY,
-
-                marginHorizontal: 10,
-                justifyContent: 'center',
-                alignItems: 'center',
-                flexDirection: 'row',
-              }}
-            />
-
-            <View
-              style={{
-                height: HEIGHT * 0.05,
-                width: WIDTH * 0.95,
-                // marginTop: 5,
-                borderRadius: 10,
-                justifyContent: 'space-between',
-                alignItems: 'flex-start',
-                flexDirection: 'row',
-              }}>
-              <View
-                style={{
-                  height: '70%',
-                  width: '33%',
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                }}>
-                <Text
-                  style={{
-                    color: 'white',
-                    fontSize: 17,
-                    fontFamily: 'Poppins-Bold',
-                  }}>
-                  Select Date
-                </Text>
-                <Icon
-                  name="info-outline"
-                  type="MaterialIcons"
-                  color="white"
-                  size={HEIGHT * 0.029}
-                />
-              </View>
-
-              <View
-                style={{
-                  height: '80%',
-                  width: '50%',
-                  flexDirection: 'row',
-                  justifyContent: 'space-around',
-                  paddingLeft: 5,
-                  padding: 2,
-                }}>
-                <Icon
-                  name="calendar"
-                  type="evilicon"
-                  color="white"
-                  size={HEIGHT * 0.032}
-                />
-                <Text
-                  style={{
-                    color: 'white',
-                    fontSize: 18,
-                    fontFamily: 'Poppins-Regular',
-                  }}>
-                  {moment(selectedDate).format('MMMM')}
-                </Text>
-                <Text
-                  style={{
-                    color: 'white',
-                    fontSize: 18,
-                    fontFamily: 'Poppins-Regular',
-                  }}>
-                  {moment(selectedDate).format('YYYY')}
-                </Text>
-              </View>
+            <View style={styles.tabContainer}>
+              <Dashboard />
             </View>
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                width: '100%',
-                height: HEIGHT * 0.125,
-                bottom: HEIGHT * 0.03,
-              }}>
-              <FlatList
-                horizontal
-                ref={flatListRef}
-                getItemLayout={getItemLayout}
-                data={dates}
-                renderItem={renderDateItem}
-                keyExtractor={item => item}
-                contentContainerStyle={styles.dateList}
-                showsHorizontalScrollIndicator={false}
-                // onEndReached={loadMoreDates}
-                onEndReachedThreshold={0.1}
-              />
-            </View>
-          </LinearGradient>
-        </Animated.View>
-        <Animated.View style={[styles.bottomView, bottomViewStyle]}>
-          <View style={styles.searchBar}>
-            <View
-              style={{
-                width: WIDTH * 0.85,
-                height: HEIGHT * 0.055,
-                alignSelf: 'center',
-                marginLeft: 7,
-                justifyContent: 'space-evenly',
-              }}>
-              <Text
-                style={{
-                  color: BLACK,
-                  fontSize: 22,
-                  fontFamily: 'Poppins-Bold',
-                  paddingTop: 10,
-                }}>
-                Monthly Attendance
-              </Text>
-              <Text
-                style={{
-                  color: BLACK,
-                  fontSize: 13,
-                  fontFamily: 'Poppins-Regular',
-                  paddingTop: 5,
-                }}>
-                {moment(selectedDate).format('LLLL')}
-              </Text>
-            </View>
-            <View
-              style={{
-                width: WIDTH * 0.9,
-                height: HEIGHT * 0.1,
-                alignSelf: 'center',
-                justifyContent: 'space-evenly',
-                flexDirection: 'row',
-                alignItems: 'center',
-                // backgroundColor: 'green',
-                padding: 10,
-                marginTop: 10,
-              }}>
-              <View
-                style={{
-                  width: WIDTH * 0.18,
-                  height: HEIGHT * 0.075,
-                  backgroundColor: 'white',
-                  alignItems: 'center',
-                  // padding: 5,
-                }}>
-                <Text
-                  style={{
-                    color: BLACK,
-                    fontSize: 13,
-                    fontFamily: 'Poppins-SemiBold',
-                  }}>
-                  Present
-                </Text>
-                <Text
-                  style={{
-                    paddingTop: 5,
-                    color: '#09692c',
-                    fontSize: 28,
-                    fontFamily: 'Poppins-Bold',
-                  }}>
-                  {present}
-                </Text>
-              </View>
-              <View
-                style={{
-                  marginTop: HEIGHT * 0.06,
-                  height: HEIGHT * 0.05,
-                  width: WIDTH * 0.001,
-                  backgroundColor: GRAY,
-                }}
-              />
-              <View
-                style={{
-                  width: WIDTH * 0.18,
-                  height: HEIGHT * 0.075,
-                  backgroundColor: 'white',
-                  alignItems: 'center',
-                  // padding: 5,
-                }}>
-                <Text
-                  style={{
-                    color: BLACK,
-                    fontSize: 13,
-                    fontFamily: 'Poppins-SemiBold',
-                  }}>
-                  Absent
-                </Text>
-                <Text
-                  style={{
-                    paddingTop: 5,
-                    color: RED,
-                    fontSize: 28,
-                    fontFamily: 'Poppins-Bold',
-                  }}>
-                  {absent}
-                </Text>
-              </View>
-              <View
-                style={{
-                  marginTop: HEIGHT * 0.06,
-                  height: HEIGHT * 0.05,
-                  width: WIDTH * 0.001,
-                  backgroundColor: GRAY,
-                }}
-              />
-              <View
-                style={{
-                  width: WIDTH * 0.18,
-                  height: HEIGHT * 0.075,
-                  backgroundColor: 'white',
-                  alignItems: 'center',
-                  // padding: 5,
-                }}>
-                <Text
-                  style={{
-                    color: BLACK,
-                    fontSize: 13,
-                    fontFamily: 'Poppins-SemiBold',
-                  }}>
-                  Leave
-                </Text>
-                <Text
-                  style={{
-                    paddingTop: 5,
-                    color: BLUE,
-                    fontSize: 28,
-                    fontFamily: 'Poppins-Bold',
-                  }}>
-                  {leave}
-                </Text>
-              </View>
-              <View
-                style={{
-                  marginTop: HEIGHT * 0.06,
-                  height: HEIGHT * 0.05,
-                  width: WIDTH * 0.001,
-                  backgroundColor: GRAY,
-                }}
-              />
-              <View
-                style={{
-                  width: WIDTH * 0.18,
-                  height: HEIGHT * 0.075,
-                  backgroundColor: 'white',
-                  alignItems: 'center',
-                  // padding: 5,
-                }}>
-                <Text
-                  style={{
-                    color: BLACK,
-                    fontSize: 13,
-                    fontFamily: 'Poppins-SemiBold',
-                  }}>
-                  WO/H
-                </Text>
-                <Text
-                  style={{
-                    paddingTop: 5,
-                    color: ORANGE,
-                    fontSize: 28,
-                    fontFamily: 'Poppins-Bold',
-                  }}>
-                  {half + woff}
-                </Text>
-              </View>
-            </View>
-          </View>
-          <View style={styles.tabContainer}>
-            <Dashboard />
-          </View>
-        </Animated.View>
+          </Animated.View>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
